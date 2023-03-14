@@ -1,11 +1,13 @@
-from flask_restx import Resource
+from flask_restx import Resource, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt, get_jwt_identity, jwt_required, current_user
+
+from ..utils.query_func import check_email_exist
 from ..auth import auth_namespace
 from ..auth.schemas import login_model, register_model, user_model, change_password_model
-from ..models import User
+from ..models import User, Student, Teacher, StudentRecord
 from http import HTTPStatus
-from ..utils.db_func import generate_matric_no
+# from ..utils.db_func import generate_matric_no
 from ..blocklist import BLOCKLIST
 from decouple import config
 
@@ -23,30 +25,71 @@ class UserRegister(Resource):
         """
         if current_user.is_admin:
             data = auth_namespace.payload
-
-            first_name = data["first_name"]
-            last_name = data["last_name"]
-            gender = data["gender"]
-            email = data["email"]
-            password_hash = generate_password_hash(config("DEFAULT_PASSWORD"))
-
-            # instantiate the User class
-            new_user = User(
-                first_name=first_name,
-                last_name=last_name,
-                gender=gender,
-                email=email,
-                password_hash=password_hash
-            )
-            new_user.save_to_db()
-
-            # generate and update student matric_no
-            new_user.matric_no = generate_matric_no(new_user.id)
-            new_user.update_db()
             
-            return new_user, HTTPStatus.CREATED
+            # if new user is a student
+            if data["user_type"].upper() == "STUDENT":
+                # check if email exist
+                email_exist = Student.query.filter_by(email=data["email"]).first()
+                if email_exist is None:
+                    new_student = Student(
+                        title=data["title"],
+                        first_name=data["first_name"],
+                        last_name=data["last_name"],
+                        gender=data["gender"],
+                        email=data["email"],
+                        password_hash=generate_password_hash(config("DEFAULT_STUDENT_PASSWORD")),
+                        department_id=data["department_id"],
+                        created_by=current_user.username,
+                        is_staff=False,
+                    )
+                    new_student.save_to_db()
+                    # generate username
+                    new_student.generate_username(new_student.user_id, new_student.first_name, new_student.last_name)
+                    # generate matric number
+                    new_student.generate_matric_no(new_student.student_id)
+
+                    # instantiate new Student Records class
+                    new_stu_record = StudentRecord(
+                        student_id=new_student.student_id,
+                        matric_no=new_student.matric_no,
+                        department_id=new_student.department_id,
+                        created_by=current_user.username
+                    )
+                    new_stu_record.save_to_db()
+
+                    return new_student, HTTPStatus.CREATED
+                
+                abort(HTTPStatus.CONFLICT, message="Email already exist")
+
+            # if new user is a teacher
+            elif data["user_type"].upper() == "TEACHER":
+                # check if email exist
+                email_exist = Teacher.query.filter_by(email=data["email"]).first()
+                if email_exist is None:
+                    new_teacher = Teacher(
+                        title=data["title"],
+                        first_name=data["first_name"],
+                        last_name=data["last_name"],
+                        gender=data["gender"],
+                        email=data["email"],
+                        password_hash=generate_password_hash(config("DEFAULT_TEACHER_PASSWORD")),
+                        department_id=data["department_id"],
+                        created_by=current_user.username,
+                        is_staff=True,
+                    )
+                    new_teacher.save_to_db()
+                    # generate username
+                    new_teacher.generate_username(new_teacher.user_id, new_teacher.first_name, new_teacher.last_name)
+                    # generate matric number
+                    new_teacher.generate_staff_code(new_teacher.teacher_id)
+
+                    return new_teacher, HTTPStatus.CREATED
+                
+                abort(HTTPStatus.CONFLICT, message="Email already exist")
+                
+            abort(HTTPStatus.BAD_REQUEST, message="Select User Type: TEACHER or STUDENT")
         
-        return {"message": "You are not unauthorized to perform this action"}, HTTPStatus.UNAUTHORIZED
+        abort(HTTPStatus.UNAUTHORIZED, message="Admin Only")
 
 
 # USER LOGIN
@@ -66,11 +109,11 @@ class UserLogin(Resource):
         user = User.query.filter_by(email=email).first()
 
         if user and check_password_hash(user.password_hash, password):
-            access_token = create_access_token(identity=user.matric_no)
-            refresh_token = create_refresh_token(identity=user.matric_no)
+            access_token = create_access_token(identity=user.username)
+            refresh_token = create_refresh_token(identity=user.username)
 
             # check if login password is still default password: password12345
-            if check_password_hash(user.password_hash, config("DEFAULT_PASSWORD")):
+            if check_password_hash(user.password_hash, config("DEFAULT_STUDENT_PASSWORD")) or check_password_hash(user.password_hash, config("DEFAULT_TEACHER_PASSWORD")) or check_password_hash(user.password_hash, config("DEFAULT_ADMIN_PASSWORD")):
                 response = {
                     "message": "Login Successful! Please Change the Default Password!",
                     "access_token": access_token,
@@ -86,7 +129,7 @@ class UserLogin(Resource):
 
             return response, HTTPStatus.CREATED
     
-        return {"message": "Invalid Credentials"}, HTTPStatus.UNAUTHORIZED
+        abort(HTTPStatus.UNAUTHORIZED, message="Invalid Credentials")
 
 
 # TOKEN REFRESH

@@ -9,13 +9,11 @@ base_dir = os.path.dirname(os.path.realpath(__file__))
 class Config:
     SECRET_KEY = config("SECRET_KEY", "secret")
     JWT_SECRET_KEY = config("JWT_SECRET_KEY")
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=60)
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(minutes=30)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=120)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(minutes=60)
 
     SQLALCHEMY_TRACK_MODIFICATION = False
     SQLALCHEMY_ECHO = True
-
-    DEFAULT_PASSWORD = config("DEFAULT_PASSWORD")
 
 
 class DevelopmentConfig(Config):

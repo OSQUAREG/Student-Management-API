@@ -2,18 +2,16 @@ from flask_restx import fields
 from ..admin import admin_namespace
 
 
-# TEACHER SCHEMA
-admin_create_model = admin_namespace.model(
-    name="Create Admin",
+# ADMIN SCHEMA
+new_admin_model = admin_namespace.model(
+    name="New Admin",
     model={
         "first_name": fields.String(required=True, description="First Name"),
         "last_name": fields.String(required=True, description="Last Name"),
         "gender": fields.String(
             required=True, description="Gender", enum=["MALE", "FEMALE"]
         ),
-        # "matric_no": fields.String(required=True, description="Admin No"),
         "email": fields.String(required=True, description="An Email"),
-        "password": fields.String(required=True, description="A Password"),
     },
 )
 
@@ -26,10 +24,12 @@ admin_model = admin_namespace.model(
         "first_name": fields.String(description="First Name"),
         "last_name": fields.String(description="Last Name"),
         "gender": fields.String(description="Gender", enum=["MALE", "FEMALE"]),
-        "matric_no": fields.String(description="Admin No"),
+        "username": fields.String(description="Admin Username"),
         "email": fields.String(description="An Email"),
         "password_hash": fields.String(description="A Password"),
         "is_admin": fields.Boolean(description="Admin Flag"),
-        "date_registered": fields.DateTime(description="Date Created"),
+        "is_staff": fields.Boolean(description="Staff Flag"),
+        "created_by": fields.String(description="Created By"),
+        "created_on": fields.DateTime(description="Date Created"),
     },
 )

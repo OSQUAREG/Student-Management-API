@@ -4,12 +4,21 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from .utils import db
 from .config.config import config_dict
-from .models import User, Teacher, Course, StudentCourse
+from .models import (
+    User,
+    Teacher,
+    Course,
+    StudentCourseScore,
+    Department,
+    GradeScale,
+    StudentRecord,
+)
 from .auth.views import auth_namespace
 from .student.views import student_namespace
 from .teacher.views import teacher_namespace
 from .admin.views import admin_namespace
 from .course.views import course_namespace
+from .department.views import department_namespace
 from .blocklist import BLOCKLIST
 
 
@@ -27,11 +36,11 @@ def create_app(config=config_dict["dev"]):
     @jwt.user_lookup_loader
     def user_lookup_callback(_jwt_header, jwt_data):
         identity = jwt_data["sub"]
-        return User.query.filter_by(matric_no=identity).one_or_none()
-    
+        return User.query.filter_by(username=identity).one_or_none()
+
     @jwt.token_in_blocklist_loader
     def check_if_token_in_blacklist(jwt_header, jwt_payload):
-        return jwt_payload['jti'] in BLOCKLIST
+        return jwt_payload["jti"] in BLOCKLIST
 
     authorizations = {
         "Bearer Auth": {
@@ -53,10 +62,10 @@ def create_app(config=config_dict["dev"]):
 
     api.add_namespace(auth_namespace, path="/auth")
     api.add_namespace(admin_namespace, path="/admin")
-    api.add_namespace(student_namespace, path="/students")
+    api.add_namespace(department_namespace, path="/departments")
     api.add_namespace(course_namespace, path="/courses")
     api.add_namespace(teacher_namespace, path="/teachers")
-
+    api.add_namespace(student_namespace, path="/students")
 
     @app.shell_context_processor
     def make_shell_context():
@@ -65,7 +74,10 @@ def create_app(config=config_dict["dev"]):
             "Student": User,
             "Teacher": Teacher,
             "Course": Course,
-            "StudentCourse": StudentCourse,
+            "GradeScale": GradeScale,
+            "StudentCourse": StudentCourseScore,
+            "StudentCourse": StudentRecord,
+            "Department": Department,
         }
 
     return app

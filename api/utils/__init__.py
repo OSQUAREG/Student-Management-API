@@ -1,8 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData, func
 from datetime import datetime
-# from ..models import Course, StudentCourse, Teacher
-
 
 
 naming_convention = {

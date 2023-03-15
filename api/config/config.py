@@ -24,6 +24,7 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite://"  # for in-memory database
+    SQLALCHEMY_ECHO = False
 
 
 class ProductionConfig(Config):

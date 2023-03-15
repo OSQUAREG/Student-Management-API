@@ -170,7 +170,7 @@ class UserLogout(Resource):
 
 # USER CHANGE PASSWORD
 @auth_namespace.route("/password")
-class ChangePassword(Resource):
+class UserPasswordChange(Resource):
     @auth_namespace.expect(change_password_model)
     @auth_namespace.doc(description="Change Current User Password")
     @jwt_required()

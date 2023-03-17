@@ -28,8 +28,16 @@ def upgrade():
     INSERT INTO users 
     (first_name, last_name, gender, email, username, password_hash, type, department_id, created_by, created_on, is_staff, is_admin)
     VALUES 
-    ("Super", "Admin", "MALE", "superadmin@sm.com", "super.admin", "{password_hash}", "user", 1, "super.admin", CURRENT_TIMESTAMP, True, True),
-    ("Admin", "Admin", "MALE", "admin@sm.com", "admin", "{password_hash2}", "user", 1, "super.admin", CURRENT_TIMESTAMP, True, True);
+    ("Super", "Admin", "MALE", "superadmin@sm.com", "super.admin", "{password_hash}", "user", 1, "super.admin", CURRENT_TIMESTAMP, True, True)
+    """
+    )
+
+    op.execute(
+        f"""
+    INSERT INTO users 
+    (first_name, last_name, gender, email, username, password_hash, type, department_id, created_by, created_on, is_staff, is_admin)
+    VALUES 
+    ("Admin", "Admin", "MALE", "admin@sm.com", "admin", "{password_hash2}", "user", 1, "super.admin", CURRENT_TIMESTAMP, True, True)
     """
     )
 

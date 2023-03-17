@@ -68,16 +68,19 @@ def calc_student_gpa_honours(student_id):
     )
 
     honours = None
-
-    if gpa/100 >= 3.5:
-        honours = "First Class Honours"
-    elif gpa/100 >=3.0 and gpa/100 <=3.49:
-        honours = "Second Class Honours (Upper Division)"
-    elif gpa/100 >=2.0 and gpa/100 <=2.99:
-        honours = "Second Class Honours (Lower Division)"
-    elif gpa/100 >=1.0 and gpa/100 <=1.99:
-        honours = "Third Class Honours"
+    
+    if gpa:
+        if gpa/100 >= 3.5:
+            honours = "First Class Honours"
+        elif gpa/100 >=3.0 and gpa/100 <=3.49:
+            honours = "Second Class Honours (Upper Division)"
+        elif gpa/100 >=2.0 and gpa/100 <=2.99:
+            honours = "Second Class Honours (Lower Division)"
+        elif gpa/100 >=1.0 and gpa/100 <=1.99:
+            honours = "Third Class Honours"
+        else:
+            honours = "No Honours/Degree"
     else:
-        honours = "No Honours/Degree"
+        gpa = 0
         
     return int(gpa), honours

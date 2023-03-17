@@ -1,6 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import MetaData, func
-from datetime import datetime
+from sqlalchemy import MetaData
 
 
 naming_convention = {

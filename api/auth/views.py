@@ -169,7 +169,7 @@ class UserLogout(Resource):
 
 
 # USER CHANGE PASSWORD
-@auth_namespace.route("/password")
+@auth_namespace.route("/change-password")
 class UserPasswordChange(Resource):
     @auth_namespace.expect(change_password_model)
     @auth_namespace.doc(description="Change Current User Password")
@@ -179,8 +179,8 @@ class UserPasswordChange(Resource):
         Change Current User Password
         """
         data = auth_namespace.payload
-        matric_no = get_jwt_identity()
-        user = User.query.filter_by(matric_no=matric_no).first()
+        username = get_jwt_identity()
+        user = User.query.filter_by(username=username).first()
         
         old_password = data["old_password"]
         new_password = data["new_password"]
@@ -197,7 +197,7 @@ class UserPasswordChange(Resource):
                 jti = token["jti"]
                 BLOCKLIST.add(jti)
 
-                response = {"message": "Password Changed Successfully. Please Log in Again"}
+                response = {"message": "Password Changed Successfully. Please Log-in Again"}
                 return response, HTTPStatus.OK
 
             response = {"message": "You are not authorized to perform this operation"}

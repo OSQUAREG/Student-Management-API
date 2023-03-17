@@ -1,4 +1,4 @@
-from sqlalchemy import and_, func
+from sqlalchemy import and_, asc, desc, func
 from sqlalchemy.orm import defer
 from . import db
 from ..models import (
@@ -127,13 +127,67 @@ def get_course_students(course_id):
             Course.name.label("course_name"),
             StudentCourseScore.registered_on,
             StudentCourseScore.registered_by,
+            StudentCourseScore.score,
+            StudentCourseScore.grade,
+            StudentCourseScore.grade_point,
+            StudentCourseScore.scored_point,
         )
         .outerjoin(Student, Student.student_id == StudentCourseScore.student_id)
         .outerjoin(Course, Course.id == StudentCourseScore.course_id)
         .filter(StudentCourseScore.course_id == course_id)
+        .order_by(desc(StudentCourseScore.score))
         .all()
     )
     return course_students
+
+
+# GET SPECIFIC COURSE OFFERED BY A STUDENT
+def get_courses_students_by_id_list(student_ids:list, course_id):
+    """
+    This function returns a list of course just enrolled by a specific student by passing the student ID and the course IDs as a list.
+
+    :param student_id: the Student ID
+    :param course_ids: the Course IDs to be enrolled
+    :type student_id: int
+    :type course_ids: list
+    :return: the query result
+    :rtype: object
+    """
+    course_students = (
+        db.session.query(
+            Student.student_id,
+            Student.matric_no,
+            (Student.first_name + " " + Student.last_name).label("student_name"),
+            Student.gender,
+            StudentCourseScore.course_id,
+            Course.code.label("course_code"),
+            Course.name.label("course_name"),
+            Course.credit.label("course_credit"),
+            Department.name.label("department_name"),
+            StudentCourseScore.registered_on,
+            StudentCourseScore.registered_by,
+            StudentCourseScore.score.label("score"),
+            StudentCourseScore.grade.label("grade"),
+            StudentCourseScore.grade_point.label("grade_point"),
+            StudentCourseScore.scored_point.label("scored_point"),
+            (Teacher.title + " " + Teacher.first_name + " " + Teacher.last_name).label(
+                "teacher"
+            ),
+        )
+        .outerjoin(Course, Course.id == StudentCourseScore.course_id)
+        .outerjoin(Student, Student.student_id == StudentCourseScore.student_id)
+        .outerjoin(Department, Department.id == StudentCourseScore.department_id)
+        .outerjoin(Teacher, Teacher.teacher_id == Course.teacher_id)
+        .filter(
+            StudentCourseScore.course_id == course_id,
+            StudentCourseScore.student_id.in_(student_ids),
+        )
+        .order_by(desc(StudentCourseScore.score))
+        .all()
+    )
+    return course_students
+
+
 
 
 """STUDENT FUNCTIONS"""
@@ -332,6 +386,7 @@ def get_student_courses_by_id_list(student_id, course_ids:list):
             StudentCourseScore.student_id == student_id,
             StudentCourseScore.course_id.in_(course_ids),
         )
+        .order_by(asc(Course.name))
         .all()
     )
     return student_courses

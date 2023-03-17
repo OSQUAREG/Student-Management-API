@@ -16,9 +16,7 @@ class Department(db.Model, DB_Func):
     modified_on = db.Column(db.DateTime, onupdate=datetime.utcnow())
     
     courses = db.relationship("Course", backref="co_department", lazy=True)
-    users = db.relationship("User", backref="ur_department", lazy=True)
-    students = db.relationship("Student", backref="st_department", lazy=True)
-    teachers = db.relationship("Teacher", backref="sf_department", lazy=True)
+    users = db.relationship("User", backref="user_department", lazy=True)
 
     def __repr__(self):
         return f"<Department Name: {self.name}>"

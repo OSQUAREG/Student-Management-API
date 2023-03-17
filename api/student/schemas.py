@@ -50,7 +50,7 @@ student_course_model = student_namespace.model(
     name="Student Course",
     model={
         "student_id": fields.Integer(description="Student ID"),
-        "matric_no": fields.String(model=student_model, description="Student"),
+        "matric_no": fields.String(description="Student"),
         "student_name": fields.String(description="Student Name"),
         "gender": fields.String(description="Gender", enum=["MALE", "FEMALE"]),
         "course_id": fields.Integer(description="Course ID"),
@@ -69,7 +69,7 @@ student_course_model = student_namespace.model(
 student_grades_model = student_namespace.model(
     name="Student Specific Course",
     model={
-        "matric_no": fields.String(model=student_model, description="Student"),
+        "matric_no": fields.String(description="Student"),
         "student_name": fields.String(description="Student Name"),
         "course_code": fields.String(description="Course Code"),
         "course_name": fields.String(description="Course Name"),
@@ -93,21 +93,70 @@ update_student_model = student_namespace.model(
 )
 
 
-register_multiple_course_model = student_namespace.model(
-    name="Register Multiple Course",
+register_multiple_student_courses_model = student_namespace.model(
+    name="Register Multiple Course for Student",
     model={
         "course1": fields.Integer(description="Course 1"),
         "course2": fields.Integer(description="Course 2"),
         "course3": fields.Integer(description="Course 3"),
         "course4": fields.Integer(description="Course 4"),
         "course5": fields.Integer(description="Course 5"),
+        "course6": fields.Integer(description="Course 6"),
+        "course7": fields.Integer(description="Course 7"),
+        "course8": fields.Integer(description="Course 8"),
+        "course9": fields.Integer(description="Course 9"),
+        "course10": fields.Integer(description="Course 10"),
     },
 )
 
 
-score_model = student_namespace.model(
+update_student_course_score_model = student_namespace.model(
     name="Score Model",
     model={
         "score": fields.Integer(required=True, description="Student Score for a Course"),
     }
+)
+
+
+student_courses_grades_model = student_namespace.model(
+    name="Student Specific Course",
+    model={
+        "course_code": fields.String(description="Course Code"),
+        "course_name": fields.String(description="Course Name"),
+        "course_credit": fields.Integer(description="Course Credit"),
+        "score": fields.Integer(description="Score"),
+        "grade": fields.String(description="Grade"),
+        "grade_point": fields.Integer(description="Grade Point"),
+        "scored_point": fields.Integer(description="Scored Points"),
+        "student_id": fields.Integer(description="student ID"),
+        "matric_no": fields.String(description="Student"),
+        "student_name": fields.String(description="Student Name"),
+    }
+)
+
+
+update_multiple_student_courses_scores_model = student_namespace.model(
+    name="Update Multiple Courses Grades for a Student",
+    model={
+        "course_id1": fields.Integer( description="Course 1 ID"),
+        "score1": fields.Integer(description="Course 1 Score"),
+        "course_id2": fields.Integer(description="Course 2 ID"),
+        "score2": fields.Integer(description="Course 2 Score"),
+        "course_id3": fields.Integer(description="Course 3 ID"),
+        "score3": fields.Integer(description="Course 3 Score"),
+        "course_id4": fields.Integer(description="Course 4 ID"),
+        "score4": fields.Integer(description="Course 4 Score"),
+        "course_id5": fields.Integer(description="Course 5 ID"),
+        "score5": fields.Integer(description="Course 5 Score"),
+        "course_id6": fields.Integer(description="Course 6 ID"),
+        "score6": fields.Integer(description="Course 6 Score"),
+        "course_id7": fields.Integer(description="Course 7 ID"),
+        "score7": fields.Integer(description="Course 7 Score"),
+        "course_id8": fields.Integer(description="Course 8 ID"),
+        "score8": fields.Integer(description="Course 8 Score"),
+        "course_id9": fields.Integer(description="Course 9 ID"),
+        "score9": fields.Integer(description="Course 9 Score"),
+        "course_id10": fields.Integer(description="Course 10 ID"),
+        "score10": fields.Integer(description="Course 10 Score"),
+    },
 )

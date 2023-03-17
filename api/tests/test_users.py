@@ -1,4 +1,4 @@
-from . import UnitTestCase, create_test_admin, get_auth_token_headers, year_str
+from . import UnitTestCase, create_test_admin, create_test_user, create_test_student, get_auth_token_headers, year_str
 from ..models import Student, User, Teacher
 from werkzeug.security import generate_password_hash
 from dotenv import load_dotenv
@@ -10,8 +10,7 @@ load_dotenv()
 class UserTestCase(UnitTestCase):
     # testing the sign-up route
     def test_user_registration(self):
-
-        admin=create_test_admin()
+        test_admin=create_test_admin()
 
         # Student Test Data & Response
         stu_data = {
@@ -28,7 +27,7 @@ class UserTestCase(UnitTestCase):
         stu_response = self.client.post(
             "/auth/register", 
             json=stu_data, 
-            headers=get_auth_token_headers(admin.username))
+            headers=get_auth_token_headers(test_admin.username))
 
         # Teacher Test Data & Response
         tch_data = {
@@ -45,7 +44,7 @@ class UserTestCase(UnitTestCase):
         tch_response = self.client.post(
             "/auth/register", 
             json=tch_data, 
-            headers=get_auth_token_headers(admin.username))
+            headers=get_auth_token_headers(test_admin.username))
 
         print(os.environ["DEFAULT_STUDENT_PASSWORD"])
         
@@ -73,18 +72,7 @@ class UserTestCase(UnitTestCase):
         
     # testing the login route
     def test_user_login(self):
-
-        user = User(
-            type="student",
-            title="MR",
-            first_name="Student",
-            last_name="Test",
-            email="student@test.com",
-            gender="MALE",
-            password_hash=generate_password_hash(os.environ["DEFAULT_STUDENT_PASSWORD"]),
-            department_id=1
-        )
-        user.save_to_db()
+        test_user = create_test_user()
         
         data = {
             "email": "student@test.com", 
@@ -92,27 +80,24 @@ class UserTestCase(UnitTestCase):
         }
 
         response = self.client.post("/auth/login", json=data)
-        print(os.environ["DEFAULT_STUDENT_PASSWORD"])
+
         assert response.status_code == 201
 
 
-    # testing the login route
+    # testing the user password change
     def test_user_password_change(self):
-
-        user = User(
-            type="student",
-            title="MR",
-            first_name="Student",
-            last_name="Test",
-            email="student@test.com",
-            gender="MALE",
-            password_hash=generate_password_hash(os.environ["DEFAULT_STUDENT_PASSWORD"]),
-            department_id=1
-        )
-        user.save_to_db()
+        test_user = create_test_user()        
         
-        data = {"email": "student@test.com", "password": os.environ["DEFAULT_STUDENT_PASSWORD"]}
+        data = {
+            "old_password": os.environ["DEFAULT_STUDENT_PASSWORD"], 
+            "new_password": "password123",
+            "confirm_password": "password123",
+        }
 
-        response = self.client.post("/auth/login", json=data)
-        print(os.environ["DEFAULT_STUDENT_PASSWORD"])
-        assert response.status_code == 201
+        response = self.client.patch(
+            "/auth/change-password", 
+            json=data,
+            headers=get_auth_token_headers(test_user.username)
+        )
+
+        assert response.status_code == 200

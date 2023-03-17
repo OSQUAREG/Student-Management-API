@@ -9,9 +9,11 @@ from ..student.schemas import (
     update_student_model,
     student_course_model,
     student_records_model,
-    score_model,
+    update_student_course_score_model,
     student_grades_model,
-    register_multiple_course_model
+    register_multiple_student_courses_model,
+    student_courses_grades_model,
+    update_multiple_student_courses_scores_model
 )
 from ..utils.query_func import (
     check_course_exist,
@@ -58,7 +60,7 @@ class Students(Resource):
 
 
 """GET-UPDATE-DELETE STUDENT DETAILS"""
-@student_namespace.route("/<int:student_id>")
+@student_namespace.route("/<int:student_id>", doc=dict(params=dict(student_id="Student ID")))
 class GetUpdateDeleteSpecificStudent(Resource):
 
     # GET SPECIFIC STUDENT (by Student ID)
@@ -81,17 +83,29 @@ class GetUpdateDeleteSpecificStudent(Resource):
     @jwt_required()
     def put(self, student_id):
         """
-        Admin: Update Student by ID
+        Admin: Update Any or All 3 Student Detail by ID
         """
         if current_user.is_admin:
-            data = student_namespace.payload            
-            if not check_email_exist(data["email"]):
-                abort(HTTPStatus.CONFLICT, message="Email already exist.")
-                
             student = Student.get_by_student_id(student_id)
-            student.first_name = data["first_name"]
-            student.last_name = data["last_name"]
-            student.email = data["email"]        
+            data = student_namespace.payload
+            # check if first name is provided
+            if data.get("first_name"):
+                student.first_name = data.get("first_name")
+            else:
+                student.first_name = student.first_name
+            # check if last name is provided
+            if data.get("last_name"):
+                student.last_name = data.get("last_name")
+            else:
+                student.last_name = student.last_name
+            # check if email is provided
+            if data.get("email") and student.email != data.get("email"):
+                if not check_email_exist(data.get("email")):
+                    student.email = data.get("email")
+                else:
+                    abort(HTTPStatus.CONFLICT, message="Email already exist.")
+            else:
+                student.email = student.email
             student.update_db()
             return student, HTTPStatus.OK
 
@@ -111,87 +125,11 @@ class GetUpdateDeleteSpecificStudent(Resource):
         abort(HTTPStatus.UNAUTHORIZED, message="Admin Only.")
 
 
-
-# """STUDENT COURSE REGISTRATION (ADMIN ONLY)"""
-# @student_namespace.route("/register/course/<int:course_id>/student/<int:student_id>")
-# class RegisterStudentCourse(Resource):
-
-#     # REGISTER A COURSE FOR A STUDENT
-#     @student_namespace.marshal_with(student_course_model)
-#     @student_namespace.doc(description="Register Student Course (Admin Only)", params=dict(student_id="Student ID", course_id="Course ID"))
-#     @jwt_required()
-#     def post(self, student_id, course_id):
-#         """
-#         Admin: Register a Course by ID for a Student
-#         """
-#         if current_user.is_admin:
-#             student = Student.get_by_student_id(student_id)
-#             course = Course.get_by_id(course_id)
-            
-#             if check_student_exist(student_id):
-#                 if check_course_exist(course_id):
-#                     if check_student_registered_course(student_id, course_id):
-#                         abort(HTTPStatus.CONFLICT, message="Course already registered for Student")
-#                     # instantiate the StudentCourse class
-#                     student_course = StudentCourseScore(
-#                         student_id=student_id,
-#                         matric_no=student.matric_no,
-#                         course_id=course_id,
-#                         course_code=course.code,
-#                         department_id=course.department_id,
-#                         credit=course.credit,
-#                         registered_by=current_user.username,
-#                     )
-#                     student_course.save_to_db()
-#                     # update student records
-#                     stu_record = StudentRecord.get_by_id(student_id)
-#                     stu_record.course_count = calc_course_count(student_id)
-#                     stu_record.total_credits = calc_total_credits(student_id)
-#                     stu_record.update_db()
-#                     # response data
-#                     student_course = get_student_course_detail_by_id(student_id, course_id)
-#                     return student_course, HTTPStatus.CREATED
-                
-#                 abort(HTTPStatus.CONFLICT, message=f"Course with {course_id} does not exist")
-#             abort(HTTPStatus.CONFLICT, message=f"Student with {student_id} does not exist")
-#         abort(HTTPStatus.UNAUTHORIZED, message="Admin Only.")
-
-#     # UNREGISTER A COURSE FOR A STUDENT
-#     @student_namespace.doc(description="Unregister Student Course (Admin Only)")
-#     @jwt_required()
-#     def delete(self, student_id, course_id):
-#         """
-#         Admin: Unregister a Course by ID for a Student
-#         """
-#         if current_user.is_admin:
-#             student = Student.get_by_student_id(student_id)
-#             course = Course.get_by_id(course_id)
-            
-#             if check_student_exist(student_id):
-#                 if check_course_exist(course_id):
-#                     if check_student_registered_course(student_id, course_id):
-#                         student_course = get_student_registered_course_by_id(student_id, course_id)
-#                         student_course.delete_from_db()
-#                         # update student records
-#                         stu_record = StudentRecord.get_by_id(student_id)
-#                         stu_record.course_count = calc_course_count(student_id)
-#                         stu_record.total_credit = calc_total_credits(student_id)
-#                         stu_record.update_db()
-#                         # response data
-#                         student_course = get_student_course_detail_by_id(student.id, course.id)
-#                         return {"message": f"Student Course: {course.code} Unregistered Successfully"}, HTTPStatus.OK
-
-#                     abort(HTTPStatus.CONFLICT, message="Course Not Registered for Student")
-#                 abort(HTTPStatus.CONFLICT, message=f"Course with {course_id} does not exist")
-#             abort(HTTPStatus.CONFLICT, message=f"Student with {student_id} does not exist")
-#         abort(HTTPStatus.UNAUTHORIZED, message="Admin Only.")
-
-
 """STUDENT MULTIPLE COURSES REGISTRATION (ADMIN ONLY)"""
-@student_namespace.route("/register/courses/<int:student_id>")
-class StudentRegisterCourses(Resource):
+@student_namespace.route("/<int:student_id>/courses")
+class RegisterUnregisterStudentCourses(Resource):
     # REGISTER MULTIPLE COURSES FOR A STUDENT
-    @student_namespace.expect(register_multiple_course_model)
+    @student_namespace.expect(register_multiple_student_courses_model)
     @student_namespace.marshal_with(student_course_model)
     @student_namespace.doc(description="Register Student Course (Admin Only)", params=dict(student_id="Student ID"))
     @jwt_required()
@@ -204,19 +142,13 @@ class StudentRegisterCourses(Resource):
                 student = Student.get_by_student_id(student_id)
                 data = student_namespace.payload
                 course_ids = []
-                if check_course_exist(data.get("course1")) and not check_student_registered_course(student_id, data.get("course1")):
-                    course_ids.append(data["course1"])
-                if check_course_exist(data.get("course2")) and not check_student_registered_course(student_id, data.get("course2")):
-                    course_ids.append(data["course2"])
-                if check_course_exist(data.get("course3")) and not check_student_registered_course(student_id, data.get("course3")):
-                    course_ids.append(data["course3"])
-                if check_course_exist(data.get("course4")) and not check_student_registered_course(student_id, data.get("course4")):
-                    course_ids.append(data["course4"])
-                if check_course_exist(data.get("course5")) and not check_student_registered_course(student_id, data.get("course5")):
-                    course_ids.append(data["course5"])
-
-                if len(course_ids) <= 5 and len(course_ids) >= 1:
-                    for course_id in course_ids:
+                i = 0
+                while i < len(data):
+                    i += 1                    
+                    if check_course_exist(data.get(f"course{i}")) and not check_student_registered_course(student_id, data.get(f"course{i}")):
+                        course_id = data.get(f"course{i}")
+                        course_ids.append(course_id)
+                        
                         course = Course.get_by_id(course_id)
                         student_course = StudentCourseScore(
                             student_id=student_id,
@@ -234,46 +166,36 @@ class StudentRegisterCourses(Resource):
                         stu_record.course_count = calc_course_count(student_id)
                         stu_record.total_credits = calc_total_credits(student_id)
                         stu_record.update_db()
-                    # response data
-                    student_courses = get_student_courses_by_id_list(student_id, course_ids)
-                    return student_courses, HTTPStatus.CREATED
-                elif len(course_ids) == 0:
-                    abort(HTTPStatus.CONFLICT, message="Courses are already registered for Student")
-                else:                
-                    abort(HTTPStatus.CONFLICT, message="You can only register not more than 5 Courses at once")
-            abort(HTTPStatus.CONFLICT, message=f"Student with {student_id} does not exist")
-        abort(HTTPStatus.UNAUTHORIZED, message="Admin Only.")
+                # response data
+                student_courses = get_student_courses_by_id_list(student_id, course_ids)
+                return student_courses, HTTPStatus.CREATED
 
 
     # UNREGISTER MULTIPLE COURSES FOR A STUDENT
-    @student_namespace.expect(register_multiple_course_model)
+    @student_namespace.expect(register_multiple_student_courses_model)
     @student_namespace.doc(description="Unregister Student Course (Admin Only)", params=dict(student_id="Student ID"))
     @jwt_required()
     def delete(self, student_id):
-        """Admin: Register Multiple Courses for a Student"""
+        """Admin: Unregister Multiple Courses for a Student"""
         if current_user.is_admin:
             if check_student_exist(student_id):
+                student = Student.get_by_student_id(student_id)
                 data = student_namespace.payload
                 course_ids = []
-                if check_course_exist(data.get("course1")) and check_student_registered_course(student_id, data.get("course1")):
-                    course_ids.append(data["course1"])
-                if check_course_exist(data.get("course2")) and check_student_registered_course(student_id, data.get("course2")):
-                    course_ids.append(data["course2"])
-                if check_course_exist(data.get("course3")) and check_student_registered_course(student_id, data.get("course3")):
-                    course_ids.append(data["course3"])
-                if check_course_exist(data.get("course4")) and check_student_registered_course(student_id, data.get("course4")):
-                    course_ids.append(data["course4"])
-                if check_course_exist(data.get("course5")) and check_student_registered_course(student_id, data.get("course5")):
-                    course_ids.append(data["course5"])
-
-                for course_id in course_ids:
-                    student_course = get_student_registered_course_by_id(student_id, course_id)
-                    student_course.delete_from_db()
-                    # update student records
-                    stu_record = StudentRecord.get_by_id(student_id)
-                    stu_record.course_count = calc_course_count(student_id)
-                    stu_record.total_credit = calc_total_credits(student_id)
-                    stu_record.update_db()
+                i = 0
+                while i < len(data):
+                    i += 1                    
+                    if check_course_exist(data.get(f"course{i}")) and check_student_registered_course(student_id, data.get(f"course{i}")):
+                        course_id = data.get(f"course{i}")
+                        course_ids.append(course_id)
+                        
+                        student_course = get_student_registered_course_by_id(student_id, course_id)
+                        student_course.delete_from_db()
+                        # update student records
+                        stu_record = StudentRecord.get_by_id(student_id)
+                        stu_record.course_count = calc_course_count(student_id)
+                        stu_record.total_credits = calc_total_credits(student_id)
+                        stu_record.update_db()
                 return {"message": "Courses unregistered successfully"}, HTTPStatus.OK
             
             abort(HTTPStatus.CONFLICT, message=f"Student with {student_id} does not exist")
@@ -281,7 +203,7 @@ class StudentRegisterCourses(Resource):
 
 
 """GET STUDENT REGISTERED COURSES (STUDENTS & ADMIN ONLY)"""
-@student_namespace.route("/courses/student", doc={"description": "Retrieve Student Registered Courses (Student Only Route)"})
+@student_namespace.route("/courses/student", doc={"description": "Retrieve Student Registered Courses (Student Only Route)", "envelop": "Testing"})
 @student_namespace.route("/courses/<int:student_id>", 
     doc={"description": "Retrieve Student Registered Courses (Admin Only Route)", "params": {"student_id": "Student ID"}})
 class StudentCourses(Resource):
@@ -301,16 +223,16 @@ class StudentCourses(Resource):
             if current_user.type == "student":
                 student = Student.query.filter_by(username=current_user.username).first()
                 student_courses = get_student_courses_details(student.student_id)
-                return student_courses, HTTPStatus.CREATED
+                return student_courses, HTTPStatus.OK
             abort(HTTPStatus.UNAUTHORIZED, message="Student Only")
 
 
 """STUDENT COURSE GRADE (ADMIN ONLY)"""
 @student_namespace.route("/grades/<int:student_id>/course/<int:course_id>")
-class StudentCourseScoreGrade(Resource):
+class GetUpdateStudentCourseGrade(Resource):
     
     # UPDATE STUDENT COURSE GRADE (ADMIN ONLY)
-    @student_namespace.expect(score_model)
+    @student_namespace.expect(update_student_course_score_model)
     @student_namespace.marshal_with(student_grades_model)
     @student_namespace.doc(description="Student Course Score/Grade Update", params=dict(student_id="Student ID", course_id="Course ID"))
     @jwt_required()
@@ -340,18 +262,73 @@ class StudentCourseScoreGrade(Resource):
                     student_course_detail = get_student_course_detail_by_id(student_id, course_id)
                     return student_course_detail, HTTPStatus.OK
                 abort(HTTPStatus.NOT_FOUND, message="Course not registered for Student")
-            abort(HTTPStatus.UNAUTHORIZED, message="Admin Only.")
+            abort(HTTPStatus.NOT_FOUND, message="Student ID Not Found")
+        abort(HTTPStatus.UNAUTHORIZED, message="Admin Only.")
 
     # GET STUDENT COURSE GRADE (ADMIN ONLY)
     @student_namespace.marshal_with(student_grades_model)
+    @student_namespace.doc(description="Retrieve Student Course Score/Grade (Admin Only)", params=dict(student_id="Student ID", course_id="Course ID"))
     @jwt_required()
     def get(self, student_id, course_id):
-        """Get Student Grade for a Registered Course"""
+        """Admin: Get Student Grade for a Course"""
         if current_user.is_admin:
             if check_student_exist(student_id) and check_course_exist(course_id):
                 student_courses = get_student_course_detail_by_id(student_id, course_id)
-                return student_courses, HTTPStatus.CREATED
+                return student_courses, HTTPStatus.OK
             abort(HTTPStatus.NOT_FOUND, message="Please provide a Valid Student ID")
+        abort(HTTPStatus.UNAUTHORIZED, message="Admin Only")
+
+
+"""GET-UPDATE COURSES GRADES FOR A STUDENT (ADMIN ONLY)"""
+@student_namespace.route("/grades/<int:student_id>/courses", doc={"params": dict(course_id="Course ID")})
+class GetUpdateCourseStudentsGrades(Resource):
+
+    # GET ALL EGISTERED COURSES GRADES FOR A STUDENT
+    @student_namespace.marshal_with(student_courses_grades_model)
+    @student_namespace.doc(description="Retrieve All Courses Grades for a Student (Admin Only)")
+    @jwt_required()
+    def get(self, student_id):
+        """Admin: Get All Course Grades for a Specific Student"""
+        if current_user.is_admin:
+            if check_student_exist(student_id):
+                student_courses = get_student_courses_details(student_id)
+                return student_courses, HTTPStatus.OK            
+            abort(HTTPStatus.NOT_FOUND, message="Student ID Not Found")
+        abort(HTTPStatus.UNAUTHORIZED, message="Admin Only")
+
+    # UPDATE MULTIPLE REGISTERED COURSES GRADES FOR A STUDENT
+    @student_namespace.expect(update_multiple_student_courses_scores_model)
+    @student_namespace.marshal_with(student_courses_grades_model)
+    @student_namespace.doc(description="Update Multiple Courses Grades for a Student (Admin Only)")
+    @jwt_required()
+    def patch(self, student_id):
+        """Admin: Update Multiple Courses Grades for a Student"""
+        if current_user.is_admin:
+            if check_student_exist(student_id):
+                data = student_namespace.payload
+                course_ids = []
+                score_list = []
+                for key in data.keys():
+                    if key.startswith("course"):
+                        course_ids.append(data[key])
+                    if key.startswith("score"):
+                        score_list.append(data[key])
+
+                i = 0
+                while i < len(course_ids):
+                    if check_course_exist(course_ids[i]):
+                        if check_student_registered_course(student_id, course_ids[i]):
+                            student_course = get_student_registered_course_by_id(student_id, course_ids[i])
+
+                            student_course.score = score_list[i]
+                            student_course.grade, student_course.grade_point = get_score_grade(student_id, course_ids[i], score_list[i])
+                            student_course.scored_point = calc_scored_point(student_id, course_ids[i])
+                            student_course.update_db()
+                    i += 1
+                # response data
+                course_students = get_student_courses_by_id_list(student_id, course_ids)
+                return course_students, HTTPStatus.OK
+            abort(HTTPStatus.CONFLICT, message="Student does not exist.")
         abort(HTTPStatus.UNAUTHORIZED, message="Admin Only")
 
 

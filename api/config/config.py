@@ -36,9 +36,6 @@ class ProductionConfig(Config):
     DEBUG = config("DEBUG", False, cast=bool)
     SQLALCHEMY_ECHO = False
 
-    # pass
-    
-    
 
 config_dict = dict(
     dev=DevelopmentConfig,

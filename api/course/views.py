@@ -9,7 +9,7 @@ from http import HTTPStatus
 
 
 @course_namespace.route("/")
-class Courses(Resource):
+class CreateGetCourse(Resource):
 
     # CREATE A COURSE
     @course_namespace.expect(new_course_model)
@@ -57,7 +57,7 @@ class Courses(Resource):
         abort(HTTPStatus.UNAUTHORIZED, message="Admin Only")
 
 
-# GET ALL STUDENTS REGISTERED IN A COURSE
+"""GET ALL STUDENTS REGISTERED IN A COURSE"""
 @course_namespace.route("/<int:course_id>/students")
 class GetCourseStudents(Resource):
     @course_namespace.marshal_with(course_students_model)

@@ -37,6 +37,8 @@ def get_auth_token_headers(identity):
     headers = {"Authorization": f"Bearer {token}"}
     return headers
 
+
+"""FUNCTIONS TO CREATE SINGLE RECORD DATA"""
 def create_test_admin():
     test_admin = User(
         first_name="Admin",
@@ -50,6 +52,7 @@ def create_test_admin():
     )
     test_admin.save_to_db()
     return test_admin
+
 
 def create_test_user():
     test_user = User(
@@ -84,6 +87,70 @@ def create_test_student():
     return test_student
 
 
+def create_test_student_record():
+    test_student_record = StudentRecord(
+        student_id=1,
+        matric_no=f"STU/{year_str}/0000",
+        department_id=1,
+    )
+    test_student_record.save_to_db()
+
+    return test_student_record
+
+
+def create_test_grade_scale():
+    test_grade_scale = []
+
+    test_grade_a = GradeScale(
+        grade="A",
+        point=4,
+        min=70,
+        max=100
+    )
+
+    test_grade_b = GradeScale(
+        grade="B",
+        point=3,
+        min=60,
+        max=69
+    )
+    
+    test_grade_a.save_to_db()
+    test_grade_b.save_to_db()
+
+    test_grade_scale.append(test_grade_a)
+    test_grade_scale.append(test_grade_b)
+    
+    return test_grade_scale
+
+
+def create_test_course():
+    test_course = Course(
+        name="Course Test",
+        code="TCO",
+        credit=3,
+        teacher_id=1,
+        department_id=1
+    )
+    test_course.save_to_db()
+    return test_course
+
+
+def create_test_student_course():
+    test_student_course = StudentCourseScore(
+        student_id=1,
+        matric_no=f"STU/{year_str}/0001",
+        course_id=1,
+        course_code="TCO",
+        credit=3,
+        department_id=1
+    )
+    test_student_course.save_to_db()
+    return test_student_course
+
+
+
+"""FUNCTION TO CREATE MULTIPLE RECORD DATA"""
 def create_test_students():
     test_students = []
     
@@ -137,23 +204,6 @@ def create_test_students():
     return test_students
 
 
-def create_test_student_record():
-    test_student_record = StudentRecord(
-        student_id=1,
-        matric_no=f"STU/{year_str}/0000",
-        department_id=1,
-        gpa=0
-    )
-    test_student_record.save_to_db()
-
-    return test_student_record
-
-
-def calc_course_counts_credits(student_id):
-    course_count = calc_course_count(student_id)
-    total_credits = calc_total_credits(student_id)
-    return course_count, total_credits
-
 def create_test_students_records():
     test_students_records = []
     
@@ -161,21 +211,30 @@ def create_test_students_records():
         student_id=1,
         matric_no=f"STU/{year_str}/0001",
         department_id=1,
-        gpa=0
+        course_count=3,
+        total_credits=9,
+        total_points=33,
+        gpa=367
     )
 
     test_student_record2 = StudentRecord(
         student_id=2,
         matric_no=f"STU/{year_str}/0002",
         department_id=1,
-        gpa=0
+        course_count=3,
+        total_credits=9,
+        total_points=18,
+        gpa=200
     )
 
     test_student_record3 = StudentRecord(
         student_id=3,
         matric_no=f"STU/{year_str}/0003",
         department_id=1,
-        gpa=0
+        course_count=3,
+        total_credits=9,
+        total_points=27,
+        gpa=300      
     )
     
     test_student_record1.save_to_db()
@@ -187,29 +246,6 @@ def create_test_students_records():
     test_students_records.append(test_student_record3)
     
     return test_students_records
-
-
-def create_test_grade_scale():
-    test_grade_scale = GradeScale(
-        grade="A",
-        point=4,
-        min=70,
-        max=100
-    )
-    test_grade_scale.save_to_db()
-    return test_grade_scale
-
-
-def create_test_course():
-    test_course = Course(
-        name="Course Test",
-        code="TCO",
-        credit=3,
-        teacher_id=1,
-        department_id=1
-    )
-    test_course.save_to_db()
-    return test_course
 
 
 def create_test_courses():
@@ -248,20 +284,6 @@ def create_test_courses():
     test_courses.append(test_course3)
 
     return test_courses
-
-
-def create_test_student_course():
-    test_student_course = StudentCourseScore(
-        student_id=1,
-        matric_no=f"STU/{year_str}/0001",
-        course_id=1,
-        course_code="TCO",
-        credit=3,
-        department_id=1
-    )
-    test_student_course.save_to_db()
-    return test_student_course
-
 
 def create_test_student_courses():
     test_student_courses = []
@@ -308,30 +330,30 @@ def create_test_course_students():
     test_course_students = []
     
     test_course_student1 = StudentCourseScore(
-        student_id=1,
-        matric_no=f"STU/{year_str}/0001",
         course_id=1,
         course_code="TCO",
         department_id=1,
         credit=3,
+        student_id=1,
+        matric_no=f"STU/{year_str}/0001",
     )
 
     test_course_student2 = StudentCourseScore(
-        student_id=2,
-        matric_no=f"STU/{year_str}/0002",
         course_id=1,
         course_code="TCO",
         department_id=1,
         credit=3,
+        student_id=2,
+        matric_no=f"STU/{year_str}/0002",
     )
 
     test_course_student3 = StudentCourseScore(
-        student_id=3,
-        matric_no=f"STU/{year_str}/0003",
-        course_id=2,
+        course_id=1,
         course_code="TCO",
         department_id=1,
         credit=3,
+        student_id=3,
+        matric_no=f"STU/{year_str}/0003",
     )
 
     test_course_student1.save_to_db()
@@ -343,3 +365,5 @@ def create_test_course_students():
     test_course_students.append(test_course_student3)
     
     return test_course_students
+
+

@@ -11,10 +11,10 @@ from decouple import config
 class AdminRegister(Resource):
     @admin_namespace.expect(new_admin_model)
     @admin_namespace.marshal_with(admin_model)
-    @admin_namespace.doc(description="Admin Registration")
+    @admin_namespace.doc(description="Admin Registration (Admin Only)")
     def post(self):
         """
-        Register an Admin
+        Admin: Register an Admin
         """
         data = admin_namespace.payload
 

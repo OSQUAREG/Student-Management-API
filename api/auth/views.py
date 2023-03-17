@@ -1,13 +1,10 @@
 from flask_restx import Resource, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt, get_jwt_identity, jwt_required, current_user
-
-from ..utils.query_func import check_email_exist
 from ..auth import auth_namespace
 from ..auth.schemas import login_model, register_model, user_model, change_password_model
 from ..models import User, Student, Teacher, StudentRecord
 from http import HTTPStatus
-# from ..utils.db_func import generate_matric_no
 from ..blocklist import BLOCKLIST
 from decouple import config
 
@@ -17,11 +14,11 @@ from decouple import config
 class UserRegister(Resource):
     @auth_namespace.expect(register_model)
     @auth_namespace.marshal_with(user_model)
-    @auth_namespace.doc(description="User Registration")
+    @auth_namespace.doc(description="User Registration (Admin Only)")
     @jwt_required()
     def post(self):
         """
-        Register a User
+        Admin: Register a User
         """
         if current_user.is_admin:
             data = auth_namespace.payload

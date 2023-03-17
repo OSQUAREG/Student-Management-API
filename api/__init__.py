@@ -6,6 +6,7 @@ from .utils import db
 from .config.config import config_dict
 from .models import (
     User,
+    Student,
     Teacher,
     Course,
     StudentCourseScore,
@@ -20,6 +21,7 @@ from .admin.views import admin_namespace
 from .course.views import course_namespace
 from .department.views import department_namespace
 from .blocklist import BLOCKLIST
+from werkzeug.exceptions import NotFound, MethodNotAllowed, Unauthorized
 
 
 def create_app(config=config_dict["dev"]):
@@ -67,11 +69,27 @@ def create_app(config=config_dict["dev"]):
     api.add_namespace(teacher_namespace, path="/teachers")
     api.add_namespace(student_namespace, path="/students")
 
+
+    # error handlers
+    @api.errorhandler(NotFound)
+    def not_found(error):
+        return {"error": "Not Found"}, 404
+
+    @api.errorhandler(MethodNotAllowed)
+    def method_not_allowed(error):
+        return {"error": "Method Not Allowed"}, 405
+
+    @api.errorhandler(Unauthorized)
+    def unauthorized(error):
+        return {"error": "Not Unauthorized"}, 401
+    
+
     @app.shell_context_processor
     def make_shell_context():
         return {
             "db": db,
-            "Student": User,
+            "User": User,
+            "Student": Student,
             "Teacher": Teacher,
             "Course": Course,
             "GradeScale": GradeScale,

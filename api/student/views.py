@@ -1,6 +1,5 @@
 from ..student import student_namespace
 from flask_restx import Resource, abort
-from sqlalchemy import and_, desc, asc, func
 from http import HTTPStatus
 from flask_jwt_extended import current_user, jwt_required, get_jwt_identity
 from ..models import Student, StudentCourseScore, Course, StudentRecord
@@ -332,7 +331,7 @@ class GetUpdateCourseStudentsGrades(Resource):
         abort(HTTPStatus.UNAUTHORIZED, message="Admin Only")
 
 
-"""GET STUDENT ALL GRADES (STUDENTS & ADMIN ONLY)"""
+"""GET STUDENT GRADES FOR REGISTERED COURSE (STUDENTS & ADMIN ONLY)"""
 @student_namespace.route("/grades/student", doc={"description": "Retrieve Student Grades (Student Only)"})
 @student_namespace.route("/grades/<int:student_id>",
     doc={"description": "Retrieve Student Grades for Registered Courses (Admin Only)", "params": {"student_id": "Student ID"}})
@@ -353,15 +352,14 @@ class StudentCourseGrades(Resource):
             if current_user.type == "student":
                 student = Student.query.filter_by(username=current_user.username).first()
                 student_grades = get_student_courses_details(student.student_id)
-                return student_grades, HTTPStatus.CREATED
+                return student_grades, HTTPStatus.OK
             abort(HTTPStatus.UNAUTHORIZED, message="Student Only")
 
 
 """GET STUDENT RECORDS (STUDENTS & ADMIN ONLY)"""
-@student_namespace.route("/records/student", doc={"description": "Retrieve Student Records (Student Only)"})
+@student_namespace.route("/records/student", doc={"description": "Retrieve Current Student Records (Student Only)"})
 @student_namespace.route("/records/<int:student_id>",
-    doc={"description": "Retrieve Student Records (Admin Only)", "params": {"student_id": "Student ID"}})
-@student_namespace.route("/records", doc={"description": "Retrieve All Students Records (Admin Only)"})
+    doc={"description": "Retrieve Specific Student Records (Admin Only)", "params": {"student_id": "Student ID"}})
 class GetStudentRecords(Resource):
     @student_namespace.marshal_with(student_records_model)
     @jwt_required()
@@ -379,7 +377,7 @@ class GetStudentRecords(Resource):
             if current_user.type == "student":
                 student = Student.query.filter_by(username=current_user.username).first()
                 student_records = get_student_records(student.student_id)
-                return student_records, HTTPStatus.CREATED
+                return student_records, HTTPStatus.OK
             abort(HTTPStatus.UNAUTHORIZED, message="Student Only")
 
 

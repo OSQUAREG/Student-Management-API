@@ -1,7 +1,20 @@
-from . import UnitTestCase, create_test_admin, create_test_course, create_test_courses, create_test_grade_scale, create_test_student_course, create_test_student_courses, create_test_student_record, create_test_students, create_test_user, create_test_student, get_auth_token_headers, year_str
-from ..models import Course, StudentCourseScore, Student, StudentRecord
-from ..utils.calc_func import calc_course_count, calc_scored_point, calc_total_credits, calc_student_gpa_honours, calc_total_points
-
+from . import (
+    UnitTestCase,
+    create_test_students_records, 
+    year_str,
+    create_test_admin, 
+    create_test_course, 
+    create_test_courses, 
+    create_test_grade_scale, 
+    create_test_student_course, 
+    create_test_student_courses, 
+    create_test_student_record, 
+    create_test_students, 
+    create_test_student, 
+    get_auth_token_headers,
+)
+from ..models import StudentCourseScore, Student, StudentRecord
+from ..utils.calc_func import calc_course_count, calc_total_credits, calc_student_gpa_honours
 
 
 class StudentTestCase(UnitTestCase):
@@ -188,14 +201,55 @@ class StudentTestCase(UnitTestCase):
         assert stu_records.honours == "First Class Honours"
 
 
-    def test_get_update_courses_grades_for_student():
+    def test_get_update_courses_grades_for_student(self):
         test_admin = create_test_admin()
         test_student = create_test_student()
+        test_grade_scale = create_test_grade_scale()
         test_student_record = create_test_student_record()
         test_courses = create_test_courses()
         test_student_courses = create_test_student_courses()
-        test_grade_scale = create_test_grade_scale()
         
+        student_id = test_student.student_id
+
+        test_student_record.course_count = calc_course_count(student_id)
+        test_student_record.total_credits = calc_total_credits(student_id)
+        test_student_record.update_db()
+
+        # update route
+        update_data = {
+            "course1_id": 1,
+            "score1": 80,
+            "course2_id": 2,
+            "score2": 65,
+            "course3_id": 3,
+            "score3": 75,
+        }
+        update_response = self.client.patch(
+            f"/students/grades/{student_id}/courses",
+            json=update_data,
+            headers=get_auth_token_headers(test_admin.username)
+        )        
+        assert update_response.status_code == 200
+
+        # get route
+        get_response = self.client.get(
+            f"/students/grades/{student_id}/courses",
+            headers=get_auth_token_headers(test_admin.username)
+        )        
+        assert get_response.status_code == 200
+        # asserting saved data
+        course1_grade = StudentCourseScore.query.filter_by(student_id=student_id, course_id=1).first()
+        assert course1_grade.score == 80
+        assert course1_grade.grade == "A"
+        
+        course2_grade = StudentCourseScore.query.filter_by(student_id=student_id, course_id=2).first()
+        assert course2_grade.score == 65
+        assert course2_grade.grade == "B"
+
+        course3_grade = StudentCourseScore.query.filter_by(student_id=student_id, course_id=3).first()
+        assert course3_grade.score == 75
+        assert course3_grade.grade == "A"
+
 
     def test_get_current_or_specific_students_courses_grades(self):
         test_admin = create_test_admin()
@@ -216,19 +270,48 @@ class StudentTestCase(UnitTestCase):
             f"/students/grades/{student_id}",
             headers=get_auth_token_headers(test_admin.username)
         )
-        assert adm_response.status_code == 201
+        assert adm_response.status_code == 200
         
         # current student user
         stu_response = self.client.get(
             "/students/grades/student",
-            headers=get_auth_token_headers(test_admin.username)
+            headers=get_auth_token_headers(test_student.username)
         )
         assert stu_response.status_code == 200
         
 
-    # def get_student_records(self):
-    #     pass
+    def test_get_student_records(self):
+        test_admin = create_test_admin()        
+        test_student = create_test_student()
+        test_student_record = create_test_student_record()
+
+        student_id = test_student.student_id
+
+        test_student_record.gpa, test_student_record.honours = calc_student_gpa_honours(student_id)
+
+        # current student record
+        stu_response = self.client.get(
+            "/students/records/student",
+            headers=get_auth_token_headers(test_student.username)
+        )
+        assert stu_response.status_code == 200
+
+        # admin get spcific student record
+        adm_response = self.client.get(
+            f"/students/records/{student_id}",
+            headers=get_auth_token_headers(test_admin.username)
+        )
+        assert adm_response.status_code == 200
 
 
-    # def get_all_students_records(self):
-    #     pass
+    def test_get_all_students_records(self):
+        test_admin = create_test_admin()        
+        test_students = create_test_students()
+        test_students_records = create_test_students_records()
+
+        # admin get all student records
+        response = self.client.get(
+            "/students/records",
+            headers=get_auth_token_headers(test_admin.username)
+        )
+        assert response.status_code == 200

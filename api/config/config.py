@@ -34,7 +34,7 @@ class ProductionConfig(Config):
 
     SQLALCHEMY_DATABASE_URI = uri
     DEBUG = config("DEBUG", False, cast=bool)
-    SQLALCHEMY_ECHO = False
+    # SQLALCHEMY_ECHO = False
 
 
 config_dict = dict(

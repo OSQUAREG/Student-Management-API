@@ -19,5 +19,4 @@ class Teachers(Resource):
         if current_user.is_admin:
             teachers = get_all_teachers()
             return teachers, HTTPStatus.OK
-
         abort(HTTPStatus.UNAUTHORIZED, message="Admin Only")

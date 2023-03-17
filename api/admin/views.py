@@ -17,7 +17,6 @@ class AdminRegister(Resource):
         Admin: Register an Admin
         """
         data = admin_namespace.payload
-
         # instantiate the User class
         new_user = User(
             first_name=data["first_name"],
@@ -31,9 +30,7 @@ class AdminRegister(Resource):
             created_by="admin"
         )
         new_user.save_to_db()
-
         new_user.generate_username(new_user.id, new_user.first_name, new_user.last_name)
-
         return new_user, HTTPStatus.CREATED
 
 

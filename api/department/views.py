@@ -31,10 +31,8 @@ class CreateGetDepartment(Resource):
                 created_by=current_user.username
             )
 
-            new_department.save_to_db()
-            
+            new_department.save_to_db()            
             return new_department, HTTPStatus.CREATED
-
         abort(HTTPStatus.UNAUTHORIZED, message="Admin Only")
 
     # GET ALL DEPARTMENTS
@@ -49,6 +47,5 @@ class CreateGetDepartment(Resource):
         
         if current_user.is_admin:
             departments = get_all_departments()
-            return departments, HTTPStatus.OK
-        
+            return departments, HTTPStatus.OK        
         abort(HTTPStatus.UNAUTHORIZED, message="Admin Only")

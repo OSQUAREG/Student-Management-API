@@ -8,6 +8,7 @@ from ..models import Course, StudentCourseScore
 from http import HTTPStatus
 
 
+"""CREATE-GET ALL COURSES"""
 @course_namespace.route("/")
 class CreateGetCourse(Resource):
 
@@ -22,7 +23,7 @@ class CreateGetCourse(Resource):
         """
         if current_user.is_admin:
             data = course_namespace.payload
-
+            
             if check_course_code_exist(data["code"]):
                 abort(HTTPStatus.CONFLICT, message="Course Code Already Exist")
 
@@ -39,7 +40,6 @@ class CreateGetCourse(Resource):
             new_course = get_course_details_by_id(new_course.id)
 
             return new_course, HTTPStatus.CREATED
-
         abort(HTTPStatus.UNAUTHORIZED, message="Admin Only")
 
     # GET ALL COURSES
@@ -57,11 +57,11 @@ class CreateGetCourse(Resource):
         abort(HTTPStatus.UNAUTHORIZED, message="Admin Only")
 
 
-"""GET ALL STUDENTS REGISTERED IN A COURSE"""
+"""GET ALL STUDENTS REGISTERED FOR A COURSE"""
 @course_namespace.route("/<int:course_id>/students")
 class GetCourseStudents(Resource):
     @course_namespace.marshal_with(course_students_model)
-    @course_namespace.doc(description="Retrieve Specific Course Students (Admin Only)")
+    @course_namespace.doc(description="Retrieve Specific Course Students (Admin Only)", params=dict(course_id="Course ID"))
     @jwt_required()
     def get(self, course_id):
         """
@@ -70,10 +70,8 @@ class GetCourseStudents(Resource):
         if current_user.is_admin:
             if check_course_exist(course_id):
                 course_students = get_course_students(course_id)
-                return course_students, HTTPStatus.OK
-            
+                return course_students, HTTPStatus.OK            
             abort(HTTPStatus.NOT_FOUND, message="Course ID Not Found")
-
         abort(HTTPStatus.UNAUTHORIZED, message="Admin Only")
 
 
@@ -97,7 +95,7 @@ class GetUpdateCourseStudentsGrades(Resource):
     # UPDATE MULTIPLE STUDENTS GRADE FOR A COURSE
     @course_namespace.expect(update_multiple_course_students_scores_model)
     @course_namespace.marshal_with(course_students_grades_model)
-    @course_namespace.doc(description="Update Multiple Students Grades for a Course (Admin Only)")
+    @course_namespace.doc(description="Update Multiple Students Course Grades (Admin Only)")
     @jwt_required()
     def patch(self, course_id):
         """Admin: Update Multiple Students Grades for a Course"""

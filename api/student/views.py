@@ -35,7 +35,6 @@ from ..utils.calc_func import (
     calc_total_points,
     calc_student_gpa_honours,
 )
-from ..utils import db
 
 
 """GET ALL STUDENTS"""
@@ -45,9 +44,7 @@ class Students(Resource):
     @student_namespace.doc(description="Retrieve All Students (Admin Only) or Current Student (Students Only)")
     @jwt_required()
     def get(self):
-        """
-        Get All Students (Admin Only) | Current Student (Student Only)
-        """
+        """Get All Students (Admin Only) | Current Student (Student Only)"""
         if current_user.is_admin:
             students = get_all_students()
             return students, HTTPStatus.OK
@@ -67,9 +64,7 @@ class GetUpdateDeleteSpecificStudent(Resource):
     @student_namespace.doc(description="Retrieve Specific Student by ID (Admin Only)")
     @jwt_required()
     def get(self, student_id):
-        """
-        Admin: Get Student by ID
-        """
+        """Admin: Get Student by ID"""
         if current_user.is_admin:
             student = Student.get_by_student_id(student_id)
             return student, HTTPStatus.OK
@@ -81,9 +76,7 @@ class GetUpdateDeleteSpecificStudent(Resource):
     @student_namespace.doc(description="Update Specific Student (Admin Only)")
     @jwt_required()
     def put(self, student_id):
-        """
-        Admin: Update Any or All 3 Student Detail by ID
-        """
+        """Admin: Update Any or All 3 Student Detail by ID"""
         if current_user.is_admin:
             student = Student.get_by_student_id(student_id)
             data = student_namespace.payload
@@ -114,9 +107,7 @@ class GetUpdateDeleteSpecificStudent(Resource):
     @student_namespace.doc(description="Delete Specific Student (Admin Only)")
     @jwt_required()
     def delete(self, student_id):
-        """
-        Admin: Delete Student by ID
-        """
+        """Admin: Delete Student by ID"""
         if current_user.is_admin:
             student = Student.get_by_student_id(student_id)
             student.delete_from_db()
@@ -125,17 +116,15 @@ class GetUpdateDeleteSpecificStudent(Resource):
 
 
 """STUDENT MULTIPLE COURSES REGISTRATION (ADMIN ONLY)"""
-@student_namespace.route("/<int:student_id>/courses")
+@student_namespace.route("/<int:student_id>/courses", doc={"params": dict(student_id="Student ID")})
 class RegisterUnregisterStudentCourses(Resource):
     # REGISTER MULTIPLE COURSES FOR A STUDENT
     @student_namespace.expect(register_multiple_student_courses_model)
     @student_namespace.marshal_with(student_course_model)
-    @student_namespace.doc(description="Register Student Course (Admin Only)", params=dict(student_id="Student ID"))
+    @student_namespace.doc(description="Register Student Course (Admin Only)")
     @jwt_required()
     def post(self, student_id):
-        """
-        Admin: Register Multiple Courses for a Student
-        """
+        """Admin: Register Multiple Courses for a Student"""
         if current_user.is_admin:
             if check_student_exist(student_id):
                 student = Student.get_by_student_id(student_id)
@@ -172,7 +161,7 @@ class RegisterUnregisterStudentCourses(Resource):
 
     # UNREGISTER MULTIPLE COURSES FOR A STUDENT
     @student_namespace.expect(register_multiple_student_courses_model)
-    @student_namespace.doc(description="Unregister Student Course (Admin Only)", params=dict(student_id="Student ID"))
+    @student_namespace.doc(description="Unregister Student Course (Admin Only)")
     @jwt_required()
     def delete(self, student_id):
         """Admin: Unregister Multiple Courses for a Student"""
@@ -195,16 +184,16 @@ class RegisterUnregisterStudentCourses(Resource):
                         stu_record.course_count = calc_course_count(student_id)
                         stu_record.total_credits = calc_total_credits(student_id)
                         stu_record.update_db()
-                return {"message": "Courses unregistered successfully"}, HTTPStatus.OK
-            
+                return {"message": "Courses unregistered successfully"}, HTTPStatus.OK            
             abort(HTTPStatus.CONFLICT, message=f"Student with {student_id} does not exist")
         abort(HTTPStatus.UNAUTHORIZED, message="Admin Only.")
 
 
 """GET STUDENT REGISTERED COURSES (STUDENTS & ADMIN ONLY)"""
-@student_namespace.route("/courses/student", doc={"description": "Retrieve Student Registered Courses (Student Only Route)", "envelop": "Testing"})
+@student_namespace.route("/courses/student", 
+    doc={"description": "Retrieve Student Registered Courses (Student Only Route)"})
 @student_namespace.route("/courses/<int:student_id>", 
-    doc={"description": "Retrieve Student Registered Courses (Admin Only Route)", "params": {"student_id": "Student ID"}})
+    doc={"description": "Retrieve Student Registered Courses (Admin Only Route)", "params": dict(student_id="Student ID")})
 class StudentCourses(Resource):
     @student_namespace.marshal_with(student_course_model)
     @jwt_required()
@@ -227,13 +216,14 @@ class StudentCourses(Resource):
 
 
 """STUDENT COURSE GRADE (ADMIN ONLY)"""
-@student_namespace.route("/grades/<int:student_id>/course/<int:course_id>")
+@student_namespace.route("/grades/<int:student_id>/course/<int:course_id>", 
+    doc={"params": dict(student_id="Student ID", course_id="Course ID")})
 class GetUpdateStudentCourseGrade(Resource):
     
     # UPDATE STUDENT COURSE GRADE (ADMIN ONLY)
     @student_namespace.expect(update_student_course_score_model)
     @student_namespace.marshal_with(student_grades_model)
-    @student_namespace.doc(description="Student Course Score/Grade Update", params=dict(student_id="Student ID", course_id="Course ID"))
+    @student_namespace.doc(description="Student Course Score/Grade Update")
     @jwt_required()
     def patch(self, student_id, course_id):
         """Admin: Update Student Course Score/Grade"""
@@ -266,7 +256,7 @@ class GetUpdateStudentCourseGrade(Resource):
 
     # GET STUDENT COURSE GRADE (ADMIN ONLY)
     @student_namespace.marshal_with(student_grades_model)
-    @student_namespace.doc(description="Retrieve Student Course Score/Grade (Admin Only)", params=dict(student_id="Student ID", course_id="Course ID"))
+    @student_namespace.doc(description="Retrieve Student Course Score/Grade (Admin Only)")
     @jwt_required()
     def get(self, student_id, course_id):
         """Admin: Get Student Grade for a Course"""
@@ -279,7 +269,7 @@ class GetUpdateStudentCourseGrade(Resource):
 
 
 """GET-UPDATE COURSES GRADES FOR A STUDENT (ADMIN ONLY)"""
-@student_namespace.route("/grades/<int:student_id>/courses", doc={"params": dict(course_id="Course ID")})
+@student_namespace.route("/grades/<int:student_id>/courses", doc={"params": dict(student_id="Student ID")})
 class GetUpdateCourseStudentsGrades(Resource):
 
     # GET ALL EGISTERED COURSES GRADES FOR A STUDENT
@@ -334,7 +324,7 @@ class GetUpdateCourseStudentsGrades(Resource):
 """GET STUDENT GRADES FOR REGISTERED COURSE (STUDENTS & ADMIN ONLY)"""
 @student_namespace.route("/grades/student", doc={"description": "Retrieve Student Grades (Student Only)"})
 @student_namespace.route("/grades/<int:student_id>",
-    doc={"description": "Retrieve Student Grades for Registered Courses (Admin Only)", "params": {"student_id": "Student ID"}})
+    doc={"description": "Retrieve Student Grades for Registered Courses (Admin Only)", "params": dict(student_id="Student ID")})
 class StudentCourseGrades(Resource):
     @student_namespace.marshal_with(student_grades_model)
     @jwt_required()
@@ -359,7 +349,7 @@ class StudentCourseGrades(Resource):
 """GET STUDENT RECORDS (STUDENTS & ADMIN ONLY)"""
 @student_namespace.route("/records/student", doc={"description": "Retrieve Current Student Records (Student Only)"})
 @student_namespace.route("/records/<int:student_id>",
-    doc={"description": "Retrieve Specific Student Records (Admin Only)", "params": {"student_id": "Student ID"}})
+    doc={"description": "Retrieve Specific Student Records (Admin Only)", "params": dict(student_id="Student ID")})
 class GetStudentRecords(Resource):
     @student_namespace.marshal_with(student_records_model)
     @jwt_required()

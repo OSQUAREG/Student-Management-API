@@ -21,8 +21,7 @@ class UserRegister(Resource):
         Admin: Register a User
         """
         if current_user.is_admin:
-            data = auth_namespace.payload
-            
+            data = auth_namespace.payload            
             # if new user is a student
             if data["user_type"].upper() == "STUDENT":
                 # check if email exist
@@ -53,9 +52,7 @@ class UserRegister(Resource):
                         created_by=current_user.username
                     )
                     new_stu_record.save_to_db()
-
-                    return new_student, HTTPStatus.CREATED
-                
+                    return new_student, HTTPStatus.CREATED                
                 abort(HTTPStatus.CONFLICT, message="Email already exist")
 
             # if new user is a teacher
@@ -80,12 +77,9 @@ class UserRegister(Resource):
                     # generate matric number
                     new_teacher.generate_staff_code(new_teacher.teacher_id)
 
-                    return new_teacher, HTTPStatus.CREATED
-                
-                abort(HTTPStatus.CONFLICT, message="Email already exist")
-                
-            abort(HTTPStatus.BAD_REQUEST, message="Select User Type: TEACHER or STUDENT")
-        
+                    return new_teacher, HTTPStatus.CREATED                
+                abort(HTTPStatus.CONFLICT, message="Email already exist")                
+            abort(HTTPStatus.BAD_REQUEST, message="Select User Type: TEACHER or STUDENT")        
         abort(HTTPStatus.UNAUTHORIZED, message="Admin Only")
 
 
@@ -104,12 +98,10 @@ class UserLogin(Resource):
         password = data["password"]
 
         user = User.query.filter_by(email=email).first()
-
         if user and check_password_hash(user.password_hash, password):
             access_token = create_access_token(identity=user.username)
             refresh_token = create_refresh_token(identity=user.username)
-
-            # check if login password is still default password: password12345
+            # check if login password is still default password
             if check_password_hash(user.password_hash, config("DEFAULT_STUDENT_PASSWORD")) or check_password_hash(user.password_hash, config("DEFAULT_TEACHER_PASSWORD")) or check_password_hash(user.password_hash, config("DEFAULT_ADMIN_PASSWORD")):
                 response = {
                     "message": "Login Successful! Please Change the Default Password!",
@@ -124,8 +116,7 @@ class UserLogin(Resource):
                     "refresh_token": refresh_token,
                 }
 
-            return response, HTTPStatus.CREATED
-    
+            return response, HTTPStatus.CREATED    
         abort(HTTPStatus.UNAUTHORIZED, message="Invalid Credentials")
 
 
@@ -156,7 +147,7 @@ class UserLogout(Resource):
     @jwt_required()
     def post(self):
         """
-        Logout: Add JWT Token to Blocklist
+        Logout: Add Token to Blocklist
         """
         token = get_jwt()
         jti = token["jti"]

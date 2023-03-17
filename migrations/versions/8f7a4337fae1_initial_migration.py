@@ -1,8 +1,8 @@
-"""empty message
+"""initial migration
 
-Revision ID: 686142c4f4e6
+Revision ID: 8f7a4337fae1
 Revises: 
-Create Date: 2023-03-11 22:53:16.398491
+Create Date: 2023-03-17 20:31:56.869591
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '686142c4f4e6'
+revision = '8f7a4337fae1'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -32,7 +32,7 @@ def upgrade():
     op.create_table('gradescale',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('grade', sa.String(), nullable=False),
-    sa.Column('point', sa.Float(precision=2, asdecimal=True), nullable=True),
+    sa.Column('point', sa.Integer(), nullable=True),
     sa.Column('min', sa.Integer(), nullable=False),
     sa.Column('max', sa.Integer(), nullable=False),
     sa.Column('created_by', sa.String(), nullable=True),
@@ -103,9 +103,9 @@ def upgrade():
     sa.Column('department_id', sa.Integer(), nullable=True),
     sa.Column('course_count', sa.Integer(), nullable=True),
     sa.Column('total_credits', sa.Integer(), nullable=False),
-    sa.Column('total_points', sa.Float(precision=2, asdecimal=True), nullable=True),
-    sa.Column('gpa', sa.Float(precision=2, asdecimal=True), nullable=True),
-    sa.Column('honurs', sa.String(), nullable=True),
+    sa.Column('total_points', sa.Integer(), nullable=True),
+    sa.Column('gpa', sa.Integer(), nullable=True),
+    sa.Column('honours', sa.String(), nullable=True),
     sa.Column('created_by', sa.String(), nullable=True),
     sa.Column('created_on', sa.DateTime(), nullable=True),
     sa.Column('modified_by', sa.String(), nullable=True),
@@ -122,10 +122,10 @@ def upgrade():
     sa.Column('course_code', sa.String(length=6), nullable=False),
     sa.Column('department_id', sa.Integer(), nullable=True),
     sa.Column('credit', sa.Integer(), nullable=False),
-    sa.Column('score', sa.Float(precision=2, asdecimal=True), nullable=True),
+    sa.Column('score', sa.Integer(), nullable=True),
     sa.Column('grade', sa.String(), nullable=True),
-    sa.Column('grade_point', sa.Float(precision=2, asdecimal=True), nullable=True),
-    sa.Column('scored_point', sa.Float(precision=2, asdecimal=True), nullable=True),
+    sa.Column('grade_point', sa.Integer(), nullable=True),
+    sa.Column('scored_point', sa.Integer(), nullable=True),
     sa.Column('registered_by', sa.String(), nullable=True),
     sa.Column('registered_on', sa.DateTime(), nullable=True),
     sa.Column('modified_by', sa.String(), nullable=True),

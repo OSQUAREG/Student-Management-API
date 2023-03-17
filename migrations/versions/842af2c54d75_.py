@@ -24,30 +24,30 @@ def upgrade():
     password_hash2 = generate_password_hash(config("DEFAULT_ADMIN_PASSWORD"))
 
     op.execute(
-        f"""
+        f'''
     INSERT INTO users 
-    (first_name, last_name, gender, email, username, password_hash, type, department_id, created_by, created_on, is_staff, is_admin)
+    ("first_name", "last_name", "gender", "email", "username", "password_hash", "type", "department_id", "created_by", "created_on", "is_staff", "is_admin")
     VALUES 
     ("Super", "Admin", "MALE", "superadmin@sm.com", "super.admin", "{password_hash}", "user", 1, "super.admin", CURRENT_TIMESTAMP, True, True)
-    """
+    '''
     )
 
     op.execute(
-        f"""
+        f'''
     INSERT INTO users 
-    (first_name, last_name, gender, email, username, password_hash, type, department_id, created_by, created_on, is_staff, is_admin)
+    ("first_name", "last_name", "gender", "email", "username", "password_hash", "type", "department_id", "created_by", "created_on", "is_staff", "is_admin")
     VALUES 
     ("Admin", "Admin", "MALE", "admin@sm.com", "admin", "{password_hash2}", "user", 1, "super.admin", CURRENT_TIMESTAMP, True, True)
-    """
+    '''
     )
 
     op.execute(
-        f"""
+        f'''
     INSERT INTO departments 
     (name, code, created_by, created_on) 
     VALUES 
     ("Admin", "ADM", "super.admin", CURRENT_TIMESTAMP);
-    """
+    '''
     )
 
     op.execute(

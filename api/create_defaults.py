@@ -5,6 +5,14 @@ from .models import User, Department, GradeScale
 
 def create_defaults():
     """Run after Table Creation"""
+    admin_department = Department(
+        name="Admins",
+        code="ADMS",
+        created_by="super.admin",
+        created_on=datetime.utcnow(),  
+    )
+    admin_department.save_to_db()
+    
     super_admin = User(
         first_name="Super",
         last_name="Admin",
@@ -35,13 +43,13 @@ def create_defaults():
     )
     admin.save_to_db()
 
-    admin_department = Department(
-        name="Admins",
-        code="ADMS",
-        created_by="super.admin",
-        created_on=datetime.utcnow(),  
-    )
-    admin_department.save_to_db()
+    # admin_department = Department(
+    #     name="Admins",
+    #     code="ADMS",
+    #     created_by="super.admin",
+    #     created_on=datetime.utcnow(),  
+    # )
+    # admin_department.save_to_db()
 
     grade = ["A", "B", "C", "D", "E", "F"]
     point = [4, 3, 2, 1, 0, 0]

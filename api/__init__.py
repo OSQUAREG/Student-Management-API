@@ -22,6 +22,7 @@ from .course.views import course_namespace
 from .department.views import department_namespace
 from .blocklist import BLOCKLIST
 from werkzeug.exceptions import NotFound, MethodNotAllowed, Unauthorized
+from .create_defaults import create_defaults
 
 
 def create_app(config=config_dict["dev"]):
@@ -96,6 +97,7 @@ def create_app(config=config_dict["dev"]):
             "StudentCourse": StudentCourseScore,
             "StudentCourse": StudentRecord,
             "Department": Department,
+            "create_defaults": create_defaults
         }
 
     return app

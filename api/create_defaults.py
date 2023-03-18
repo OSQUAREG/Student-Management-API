@@ -1,7 +1,7 @@
 from decouple import config
-from .api.models import User, Department, GradeScale
 from werkzeug.security import generate_password_hash
 from datetime import datetime
+from .models import User, Department, GradeScale
 
 def create_defaults():
     """Run after Table Creation"""

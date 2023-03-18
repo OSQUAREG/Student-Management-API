@@ -64,12 +64,11 @@ def create_app(config=config_dict["dev"]):
     )
 
     api.add_namespace(auth_namespace, path="/auth")
-    api.add_namespace(admin_namespace, path="/admin")
     api.add_namespace(department_namespace, path="/departments")
+    api.add_namespace(student_namespace, path="/students")
     api.add_namespace(course_namespace, path="/courses")
     api.add_namespace(teacher_namespace, path="/teachers")
-    api.add_namespace(student_namespace, path="/students")
-
+    api.add_namespace(admin_namespace, path="/admin")
 
     # error handlers
     @api.errorhandler(NotFound)

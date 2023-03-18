@@ -1,6 +1,6 @@
 # Student-Management-API (SM-API)
 
-This is a [Student Management API](https://student-management-api.herokuapp.com/) built with Flask (Python)
+This is a [Student Management API](https://student-management-api.herokuapp.com/) built with Flask RESTX framework in Python.
 
 **Table of Contents**
 
@@ -19,7 +19,7 @@ This is a [Student Management API](https://student-management-api.herokuapp.com/
 
 This project is a [Student Management API](https://student-management-api.herokuapp.com/) (SM-API) for mainly for registering students, creating dpartments, courses and teachers, as well as handling the grading system for the students.
 
-This was built as a RESTX API using Python (Flask), as my 3rd Semester Exam in [AltSchool Africa School of Software Engineering](https://altschoolafrica.com/schools/engineering).
+This was built as my third semester exam project in [AltSchool Africa School of Software Engineering](https://altschoolafrica.com/schools/engineering).
 
 ## Project Scope
 
@@ -32,7 +32,8 @@ The SM-API handles the following:
 * Multiple Course Registration for Students
 * Teacher Creation
 * Teacher Assignment to Courses
-* Multiple Student/Course Scoring and Grading (using the 4.0 Grading System).
+* Multiple Student/Course Scoring and Grading
+* Functionality to calculate GPA using the 4.0 Grading System.
 
 The future versions will cover more features as needed.
 

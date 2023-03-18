@@ -1,7 +1,12 @@
 from .models import User, Department, GradeScale
 from .utils import db
 
-"""Run after Table Creation"""
+"""
+To Create Tables and The Defaults Record, Run These Commands in Heroku CLI/Console:
+export FLASK_APP=runserver.py
+flask shell
+create_defaults()
+"""
 def create_defaults():
 
     from decouple import config

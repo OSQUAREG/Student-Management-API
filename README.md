@@ -86,7 +86,7 @@ To explore or use the SM-API, do the following:
 
 * Click the deploy link: [Student Management API](https://student-management-api.herokuapp.com/) or visit: https://student-management-api.herokuapp.com/ on your browser.
 * Click on **Authentication** namespace, and use the `/auth/login` route to generate a JWT Token, using the default admin credentials: `email=admin@sm.com` and `password=admin@paxword` to log in as admin.
-  *Note: for real Production use, this default password should be changed.*
+  * *Note: for real Production use, this default password should be changed after first login.*
 * Copy the access token generated e.g `eyJhbXVCJ9.eyJbmMzd9.PMrc5-rh_rQh8_tl2V1iDlsl_wAOMHc`
 * Click on any of the padlock icon by the far-right and use the token like this: `Bearer eyJhbXVCJ9.eyJbmMzd9.PMrc5-rh_rQh8_tl2V1iDlsl_wAOMHc`
 * Click **Authorize** and **Close**.
@@ -95,7 +95,8 @@ To explore or use the SM-API, do the following:
 * Then log back in with your credentials.
 * First go to **Departments** and create new department.
 * Go back to **Authentication** and register new users (Students or Teachers) and create new courses as well.
-  ***Note:** For Students, they will be created in the users (having type "student"), students and student records table and given access to log in. For Teachers, the will be created in the users (having type "student") and teachers table.*
+  * ***Note:** For Students, they will be created in the users (having type "student"), students and student records table and given access to log in.*
+  * *For Teachers, the will be created in the users (having type "teacher") and teachers table.*
 * Then go ahead to perform other operations like registering students for courses, updating their grades etc.
 * Also log in as a student and try to perform some operations in **Students** namespace that does not require a `student_id` to be passed in to the route URL.
 

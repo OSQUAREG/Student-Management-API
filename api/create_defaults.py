@@ -1,10 +1,16 @@
-from decouple import config
-from werkzeug.security import generate_password_hash
-from datetime import datetime
 from .models import User, Department, GradeScale
+from .utils import db
 
+"""Run after Table Creation"""
 def create_defaults():
-    """Run after Table Creation"""
+
+    from decouple import config
+    from werkzeug.security import generate_password_hash
+    from datetime import datetime
+
+    db.drop_all()
+    db.create_all()
+        
     admin_department = Department(
         name="Admins",
         code="ADMS",
@@ -42,14 +48,6 @@ def create_defaults():
         is_admin=True,
     )
     admin.save_to_db()
-
-    # admin_department = Department(
-    #     name="Admins",
-    #     code="ADMS",
-    #     created_by="super.admin",
-    #     created_on=datetime.utcnow(),  
-    # )
-    # admin_department.save_to_db()
 
     grade = ["A", "B", "C", "D", "E", "F"]
     point = [4, 3, 2, 1, 0, 0]

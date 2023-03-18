@@ -8,6 +8,7 @@ from http import HTTPStatus
 
 
 @department_namespace.route("/")
+@department_namespace.doc(security='apikey')
 class CreateGetDepartment(Resource):
 
     # CREATE NEW DEPARTMENT

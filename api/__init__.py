@@ -57,10 +57,11 @@ def create_app(config=config_dict["dev"]):
     api = Api(
         app=app,
         title="Student Management API",
-        description="This is a student management API build with Flask RESTX API",
+        description="This is a Student Management API (SM-API) build with Flask RESTX in Python",
         version="1.0",
         authorizations=authorizations,
         security="Bearer Auth",
+        errors=Flask.errorhandler,
     )
 
     api.add_namespace(auth_namespace, path="/auth")
@@ -70,18 +71,18 @@ def create_app(config=config_dict["dev"]):
     api.add_namespace(teacher_namespace, path="/teachers")
     api.add_namespace(admin_namespace, path="/admin")
 
-    # error handlers
-    @api.errorhandler(NotFound)
-    def not_found(error):
-        return {"error": "Not Found"}, 404
+    # # error handlers
+    # @api.errorhandler(NotFound)
+    # def not_found(error):
+    #     return {"error": "Not Found"}, 404
 
-    @api.errorhandler(MethodNotAllowed)
-    def method_not_allowed(error):
-        return {"error": "Method Not Allowed"}, 405
+    # @api.errorhandler(MethodNotAllowed)
+    # def method_not_allowed(error):
+    #     return {"error": "Method Not Allowed"}, 405
 
-    @api.errorhandler(Unauthorized)
-    def unauthorized(error):
-        return {"error": "Not Unauthorized"}, 401
+    # @api.errorhandler(Unauthorized)
+    # def unauthorized(error):
+    #     return {"error": "Not Unauthorized"}, 401
     
 
     @app.shell_context_processor

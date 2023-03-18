@@ -14,9 +14,9 @@ def create_defaults():
         password_hash=generate_password_hash(config("DEFAULT_SUPERADMIN_PASSWORD")),
         type="user",
         department_id=1,
-        created_on=datetime.utcnow()
+        created_on=datetime.utcnow(),
         is_staff=False,
-        is_admin=True
+        is_admin=True,
     )
     super_admin.save_to_db()
 
@@ -29,9 +29,9 @@ def create_defaults():
         password_hash=generate_password_hash(config("DEFAULT_ADMIN_PASSWORD")),
         type="user",
         department_id=1,
-        created_on=datetime.utcnow()
+        created_on=datetime.utcnow(),
         is_staff=False,
-        is_admin=True
+        is_admin=True,
     )
     admin.save_to_db()
 
@@ -39,7 +39,7 @@ def create_defaults():
         name="Admins",
         code="ADMS",
         created_by="super.admin",
-        created_on=datetime.utcnow()     
+        created_on=datetime.utcnow(),  
     )
     admin_department.save_to_db()
 
@@ -55,7 +55,7 @@ def create_defaults():
             min=min[i],
             max=max[i],
             created_by="super.admin",
-            created_on=datetime.utcnow()
+            created_on=datetime.utcnow(),
         )
         gradescale.save_to_db()
         i += 1

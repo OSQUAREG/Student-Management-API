@@ -84,21 +84,62 @@ In the SM-API, the following concepts were introduced and used:
 
 To explore or use the SM-API, do the following:
 
-* Click the deploy link: [Student Management API](https://student-management-api.herokuapp.com/) or visit: https://student-management-api.herokuapp.com/ on your browser.
-* Click on **Authentication** namespace, and use the `/auth/login` route to generate a JWT Token, using the default admin credentials: `email=admin@sm.com` and `password=admin@paxword` to log in as admin.
-  * *Note: for real Production use, this default password should be changed after first login.*
-* Copy the access token generated e.g `eyJhbXVCJ9.eyJbmMzd9.PMrc5-rh_rQh8_tl2V1iDlsl_wAOMHc`
-* Click on any of the padlock icon by the far-right and use the token like this: `Bearer eyJhbXVCJ9.eyJbmMzd9.PMrc5-rh_rQh8_tl2V1iDlsl_wAOMHc`
-* Click **Authorize** and **Close**.
-* Then go to **Admin** namespace, and create your own admin account for proper identification.
-* Go back to Authentication, and use the `auth/logout` route to log out.
-* Then log back in with your credentials.
-* First go to **Departments** and create new department.
-* Go back to **Authentication** and register new users (Students or Teachers) and create new courses as well.
-  * ***Note:** For Students, they will be created in the users (having type "student"), students and student records table and given access to log in.*
-  * *For Teachers, the will be created in the users (having type "teacher") and teachers table.*
-* Then go ahead to perform other operations like registering students for courses, updating their grades etc.
-* Also log in as a student and try to perform some operations in **Students** namespace that does not require a `student_id` to be passed in to the route URL.
+### How to run it locally on your PC
+
+* Clone this repository with below command: on your terminal:
+
+  ```
+  git clone https://github.com/OSQUAREG/Student-Management-API.git
+  ```
+* Pip install all the dependencies in the [requirements.txt](https://github.com/OSQUAREG/Student-Management-API/blob/main/requirements.txt) file:
+
+  ```
+  pip install -r requirements.txt
+  ```
+* Go to the [config.py](https://github.com/OSQUAREG/Student-Management-API/blob/main/api/config/config.py) file and under the class ProductionConfig do as instructed in the comments.
+* Create the file called .env and set the following environment variables:
+
+  * SECRET_KEY="your-super-secret-key"
+  * JWT_SECRET_KEY="your-super-secret-jwt-key"
+  * DEFAULT_SUPERADMIN_PASSWORD="superadmin@password"
+  * DEFAULT_ADMIN_PASSWORD="admin@password"
+  * DEFAULT_STUDENT_PASSWORD="student@password"
+  * DEFAULT_TEACHER_PASSWORD="teacher@password"
+* Go to your terminal and run the follwing command to create the tables and also insert the defaults records data:
+
+  ```
+  flask shell
+  db.create_all()
+  create_defaults()
+  ```
+* Or simply go to your terminal with below commands:
+
+  ```
+  flask db upgrade 8f7a4337fae1
+  flask db upgrade 842af2c54d75
+  ```
+* Then run `flask run` to start the server, which give you the localhost address: http://127.0.0.1:5000
+* Copy and paste this in your browser (client-side) and launch it to open the API Swagger. interface.
+* You can then log in with the credentials: `email=admin@sm.com and password=<the DEFAULT_ADMIN_PASSWORD you set>`
+* Then go ahead to try out the different routes as detailed in the next section: **How to run the deloyed API online**, from Step 3.
+
+### How to run the deployed API online
+
+1. Click the deploy link: [Student Management API](https://student-management-api.herokuapp.com/) or visit: https://student-management-api.herokuapp.com/ on your browser.
+1. Click on **Authentication** namespace, and use the `/auth/login` route to generate a JWT Token, using the default admin credentials: `email=admin@sm.com` and `password=admin@paxword` to log in as admin.
+   * *Note: for real Production use, this default password should be changed after first login.*
+1. Copy the access token generated e.g `eyJhbXVCJ9.eyJbmMzd9.PMrc5-rh_rQh8_tl2V1iDlsl_wAOMHc`
+1. Click on any of the padlock icon by the far-right and use the token like this: `Bearer eyJhbXVCJ9.eyJbmMzd9.PMrc5-rh_rQh8_tl2V1iDlsl_wAOMHc`
+1. Click **Authorize** and **Close**.
+1. Then go to **Admin** namespace, and create your own admin account for proper identification.
+1. Go back to Authentication, and use the `auth/logout` route to log out.
+1. Then log back in with your credentials.
+1. First go to **Departments** and create new department.
+1. Go back to **Authentication** and register new users (Students or Teachers) and create new courses as well.
+   * ***Note:** For Students, they will be created in the users (having type "student"), students and student records table and given access to log in.*
+   * *For Teachers, the will be created in the users (having type "teacher") and teachers table.*
+1. Then go ahead to perform other operations like registering students for courses, updating their grades etc.
+1. Also log in as a student and try to perform some operations in **Students** namespace that does not require a `student_id` to be passed in to the route URL.
 
 ## Screen Shots
 
@@ -145,7 +186,6 @@ Distributed under the MIT License. See [License](https://github.com/OSQUAREG/Stu
 You can contact me, Gregory Ogbemudia @OSQUAREG on:
 
 [LinkedIn](https://www.linkedin.com/in/osquareg/) | [Twitter](https://twitter.com/OSQUAREG) | Email: gregory.ogbemudia@gmail.com
-
 
 ## Acknowledgements
 

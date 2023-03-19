@@ -27,7 +27,8 @@ class TestingConfig(Config):
     SQLALCHEMY_ECHO = False
 
 
-class ProductionConfig(Config):    
+class ProductionConfig(Config):
+    # comment this part for development run
     uri = config("DATABASE_URL")
     if uri.startswith("postgres://"):
         uri = uri.replace("postgres://", "postgresql://", 1)
@@ -36,7 +37,8 @@ class ProductionConfig(Config):
     DEBUG = config("DEBUG", False, cast=bool)
     SQLALCHEMY_ECHO = False
 
-    # pass
+    # uncomment this part for development run
+    # pass 
 
 
 config_dict = dict(

@@ -21,7 +21,7 @@ from .admin.views import admin_namespace
 from .course.views import course_namespace
 from .department.views import department_namespace
 from .blocklist import BLOCKLIST
-from werkzeug.exceptions import NotFound, MethodNotAllowed, Unauthorized, 
+from werkzeug.exceptions import NotFound, MethodNotAllowed, Unauthorized
 from flask_jwt_extended.exceptions import NoAuthorizationError
 from .create_defaults import create_defaults
 

@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_restx import Api
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
@@ -21,7 +21,8 @@ from .admin.views import admin_namespace
 from .course.views import course_namespace
 from .department.views import department_namespace
 from .blocklist import BLOCKLIST
-from werkzeug.exceptions import NotFound, MethodNotAllowed, Unauthorized
+from werkzeug.exceptions import NotFound, MethodNotAllowed, Unauthorized, 
+from flask_jwt_extended.exceptions import NoAuthorizationError
 from .create_defaults import create_defaults
 
 
@@ -71,18 +72,22 @@ def create_app(config=config_dict["dev"]):
     api.add_namespace(teacher_namespace, path="/teachers")
     api.add_namespace(admin_namespace, path="/admin")
 
-    # # error handlers
-    # @api.errorhandler(NotFound)
-    # def not_found(error):
-    #     return {"error": "Not Found"}, 404
+    # error handlers
+    @api.errorhandler(NotFound)
+    def not_found(error):
+        return {"error": "Not Found"}, 404
 
-    # @api.errorhandler(MethodNotAllowed)
-    # def method_not_allowed(error):
-    #     return {"error": "Method Not Allowed"}, 405
+    @api.errorhandler(MethodNotAllowed)
+    def method_not_allowed(error):
+        return {"error": "Method Not Allowed"}, 405
 
-    # @api.errorhandler(Unauthorized)
-    # def unauthorized(error):
-    #     return {"error": "Not Unauthorized"}, 401
+    @api.errorhandler(Unauthorized)
+    def unauthorized(error):
+        return {"error": "Not Unauthorized"}, 401
+
+    @api.errorhandler(NoAuthorizationError)
+    def handle_auth_error(error):
+        return jsonify({"message": str(error)}), 401
     
 
     @app.shell_context_processor

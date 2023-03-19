@@ -8,7 +8,7 @@ from http import HTTPStatus
 
 
 @department_namespace.route("/")
-@department_namespace.doc(security='apikey')
+# @department_namespace.doc(security='apikey')
 class CreateGetDepartment(Resource):
 
     # CREATE NEW DEPARTMENT
@@ -44,7 +44,6 @@ class CreateGetDepartment(Resource):
         """
         Admin: Get All Departments
         """
-        from ..models import Department
         
         if current_user.is_admin:
             departments = get_all_departments()

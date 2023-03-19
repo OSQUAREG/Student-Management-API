@@ -31,7 +31,8 @@ class DepartmentTestCase(UnitTestCase):
         
         response = self.client.get(
             "/departments/", 
-            headers=get_auth_token_headers(test_admin.username))
+            headers=get_auth_token_headers(test_admin.username)
+        )
 
         assert response.status_code == 200
         assert response.json == []

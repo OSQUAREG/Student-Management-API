@@ -85,6 +85,11 @@ def create_app(config=config_dict["dev"]):
     def unauthorized(error):
         return {"error": "Not Unauthorized"}, 401
 
+    # I added this error handler becuase before deployment, 
+    # when you send request without first adding authorization header,
+    # it returns a 401 Unauthorized error.
+    # But after deployment, it returns 500 Internal Server Error, 
+    # and I need it to return a 401 error
     @api.errorhandler(NoAuthorizationError)
     def handle_no_auth_error(error):
         return {"error": "Missing Authorization Header"}, 401

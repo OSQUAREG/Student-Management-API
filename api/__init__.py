@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask
 from flask_restx import Api
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
@@ -86,8 +86,8 @@ def create_app(config=config_dict["dev"]):
         return {"error": "Not Unauthorized"}, 401
 
     @api.errorhandler(NoAuthorizationError)
-    def handle_auth_error(error):
-        return jsonify({"message": str(error)}), 401
+    def handle_no_auth_error(error):
+        return {"error": "Missing Authorization Header"}, 401
     
 
     @app.shell_context_processor

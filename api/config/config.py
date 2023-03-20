@@ -37,7 +37,7 @@ class ProductionConfig(Config):
     DEBUG = config("DEBUG", False, cast=bool)
     SQLALCHEMY_ECHO = False
 
-    # uncomment this part for development run
+    # # uncomment this part for development run
     # pass 
 
 

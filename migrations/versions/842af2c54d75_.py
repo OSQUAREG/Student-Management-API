@@ -46,7 +46,7 @@ def upgrade():
     INSERT INTO departments 
     (name, code, created_by, created_on) 
     VALUES 
-    ("Admin", "ADM", "super.admin", CURRENT_TIMESTAMP);
+    ("Admin", "ADMS", "super.admin", CURRENT_TIMESTAMP);
     '''
     )
 

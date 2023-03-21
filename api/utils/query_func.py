@@ -10,6 +10,14 @@ from ..models import (
     StudentCourseScore,
     StudentRecord,
 )
+from sqlalchemy.orm import aliased
+
+
+# create aliases for the tables
+StudentAlias = aliased(Student, flat=True)
+CourseAlias = aliased(Course, flat=True)
+DepartmentAlias = aliased(Department, flat=True)
+TeacherAlias = aliased(Teacher, flat=True)
 
 
 """USER FUNCTIONS"""
@@ -155,29 +163,29 @@ def get_courses_students_by_id_list(student_ids:list, course_id):
     """
     course_students = (
         db.session.query(
-            Student.student_id,
-            Student.matric_no,
-            (Student.first_name + " " + Student.last_name).label("student_name"),
-            Student.gender,
+            StudentAlias.student_id,
+            StudentAlias.matric_no,
+            (StudentAlias.first_name + " " + StudentAlias.last_name).label("student_name"),
+            StudentAlias.gender,
             StudentCourseScore.course_id,
-            Course.code.label("course_code"),
-            Course.name.label("course_name"),
-            Course.credit.label("course_credit"),
-            Department.name.label("department_name"),
+            CourseAlias.code.label("course_code"),
+            CourseAlias.name.label("course_name"),
+            CourseAlias.credit.label("course_credit"),
+            DepartmentAlias.name.label("department_name"),
             StudentCourseScore.registered_on,
             StudentCourseScore.registered_by,
             StudentCourseScore.score.label("score"),
             StudentCourseScore.grade.label("grade"),
             StudentCourseScore.grade_point.label("grade_point"),
             StudentCourseScore.scored_point.label("scored_point"),
-            (Teacher.title + " " + Teacher.first_name + " " + Teacher.last_name).label(
+            (TeacherAlias.title + " " + TeacherAlias.first_name + " " + TeacherAlias.last_name).label(
                 "teacher"
             ),
         )
-        .outerjoin(Course, Course.id == StudentCourseScore.course_id)
-        .outerjoin(Student, Student.student_id == StudentCourseScore.student_id)
-        .outerjoin(Department, Department.id == StudentCourseScore.department_id)
-        .outerjoin(Teacher, Teacher.teacher_id == Course.teacher_id)
+        .outerjoin(CourseAlias, CourseAlias.id == StudentCourseScore.course_id)
+        .outerjoin(StudentAlias, StudentAlias.student_id == StudentCourseScore.student_id)
+        .outerjoin(DepartmentAlias, DepartmentAlias.id == StudentCourseScore.department_id)
+        .outerjoin(TeacherAlias, TeacherAlias.teacher_id == CourseAlias.teacher_id)
         .filter(
             StudentCourseScore.course_id == course_id,
             StudentCourseScore.student_id.in_(student_ids),
@@ -270,35 +278,36 @@ def get_student_courses_details(student_id):
     """
     student_courses = (
         db.session.query(
-            Student.student_id,
-            Student.matric_no,
-            (Student.first_name + " " + Student.last_name).label("student_name"),
-            Student.gender,
+            StudentAlias.student_id,
+            StudentAlias.matric_no,
+            (StudentAlias.first_name + " " + StudentAlias.last_name).label("student_name"),
+            StudentAlias.gender,
             StudentCourseScore.course_id,
-            Course.code.label("course_code"),
-            Course.name.label("course_name"),
-            Course.credit.label("course_credit"),
-            Department.name.label("department_name"),
+            CourseAlias.code.label("course_code"),
+            CourseAlias.name.label("course_name"),
+            CourseAlias.credit.label("course_credit"),
+            DepartmentAlias.name.label("department_name"),
             StudentCourseScore.registered_on,
             StudentCourseScore.registered_by,
             StudentCourseScore.score.label("score"),
             StudentCourseScore.grade.label("grade"),
             StudentCourseScore.grade_point.label("grade_point"),
             StudentCourseScore.scored_point.label("scored_point"),
-            (Teacher.title + " " + Teacher.first_name + " " + Teacher.last_name).label(
-                "teacher"
+            (TeacherAlias.title + " " + TeacherAlias.first_name + " " + TeacherAlias.last_name).label(
+                "teacher_name"
             ),
         )
-        .outerjoin(Course, Course.id == StudentCourseScore.course_id)
-        .outerjoin(Student, Student.student_id == StudentCourseScore.student_id)
-        .outerjoin(Department, Department.id == StudentCourseScore.department_id)
-        .outerjoin(Teacher, Teacher.teacher_id == Course.teacher_id)
+        .outerjoin(CourseAlias, CourseAlias.id == StudentCourseScore.course_id)
+        .outerjoin(StudentAlias, StudentAlias.student_id == StudentCourseScore.student_id)
+        .outerjoin(DepartmentAlias, DepartmentAlias.id == StudentCourseScore.department_id)
+        .outerjoin(TeacherAlias, TeacherAlias.teacher_id == CourseAlias.teacher_id)
         .filter(StudentCourseScore.student_id == student_id)
         .all()
     )
+    
     return student_courses
 
-
+    
 # GET SPECIFIC COURSE OFFERED BY A STUDENT
 def get_student_course_detail_by_id(student_id, course_id):
     """
@@ -313,29 +322,29 @@ def get_student_course_detail_by_id(student_id, course_id):
     """
     student_course = (
         db.session.query(
-            Student.student_id,
-            Student.matric_no,
-            (Student.first_name + " " + Student.last_name).label("student_name"),
-            Student.gender,
+            StudentAlias.student_id,
+            StudentAlias.matric_no,
+            (StudentAlias.first_name + " " + StudentAlias.last_name).label("student_name"),
+            StudentAlias.gender,
             StudentCourseScore.course_id,
-            Course.code.label("course_code"),
-            Course.name.label("course_name"),
-            Course.credit.label("course_credit"),
-            Department.name.label("department_name"),
+            CourseAlias.code.label("course_code"),
+            CourseAlias.name.label("course_name"),
+            CourseAlias.credit.label("course_credit"),
+            DepartmentAlias.name.label("department_name"),
             StudentCourseScore.registered_on,
             StudentCourseScore.registered_by,
             StudentCourseScore.score.label("score"),
             StudentCourseScore.grade.label("grade"),
             StudentCourseScore.grade_point.label("grade_point"),
             StudentCourseScore.scored_point.label("scored_point"),
-            (Teacher.title + " " + Teacher.first_name + " " + Teacher.last_name).label(
-                "teacher"
+            (TeacherAlias.title + " " + TeacherAlias.first_name + " " + TeacherAlias.last_name).label(
+                "teacher_name"
             ),
         )
-        .outerjoin(Course, Course.id == StudentCourseScore.course_id)
-        .outerjoin(Student, Student.student_id == StudentCourseScore.student_id)
-        .outerjoin(Department, Department.id == StudentCourseScore.department_id)
-        .outerjoin(Teacher, Teacher.teacher_id == Course.teacher_id)
+        .outerjoin(CourseAlias, CourseAlias.id == StudentCourseScore.course_id)
+        .outerjoin(StudentAlias, StudentAlias.student_id == StudentCourseScore.student_id)
+        .outerjoin(DepartmentAlias, DepartmentAlias.id == StudentCourseScore.department_id)
+        .outerjoin(TeacherAlias, TeacherAlias.teacher_id == CourseAlias.teacher_id)
         .filter(
             StudentCourseScore.student_id == student_id,
             StudentCourseScore.course_id == course_id,
@@ -359,34 +368,34 @@ def get_student_courses_by_id_list(student_id, course_ids:list):
     """
     student_courses = (
         db.session.query(
-            Student.student_id,
-            Student.matric_no,
-            (Student.first_name + " " + Student.last_name).label("student_name"),
-            Student.gender,
+            StudentAlias.student_id,
+            StudentAlias.matric_no,
+            (StudentAlias.first_name + " " + StudentAlias.last_name).label("student_name"),
+            StudentAlias.gender,
             StudentCourseScore.course_id,
-            Course.code.label("course_code"),
-            Course.name.label("course_name"),
-            Course.credit.label("course_credit"),
-            Department.name.label("department_name"),
+            CourseAlias.code.label("course_code"),
+            CourseAlias.name.label("course_name"),
+            CourseAlias.credit.label("course_credit"),
+            DepartmentAlias.name.label("department_name"),
             StudentCourseScore.registered_on,
             StudentCourseScore.registered_by,
             StudentCourseScore.score.label("score"),
             StudentCourseScore.grade.label("grade"),
             StudentCourseScore.grade_point.label("grade_point"),
             StudentCourseScore.scored_point.label("scored_point"),
-            (Teacher.title + " " + Teacher.first_name + " " + Teacher.last_name).label(
-                "teacher"
+            (TeacherAlias.title + " " + TeacherAlias.first_name + " " + TeacherAlias.last_name).label(
+                "teacher_name"
             ),
         )
-        .outerjoin(Course, Course.id == StudentCourseScore.course_id)
-        .outerjoin(Student, Student.student_id == StudentCourseScore.student_id)
-        .outerjoin(Department, Department.id == StudentCourseScore.department_id)
-        .outerjoin(Teacher, Teacher.teacher_id == Course.teacher_id)
+        .outerjoin(CourseAlias, CourseAlias.id == StudentCourseScore.course_id)
+        .outerjoin(StudentAlias, StudentAlias.student_id == StudentCourseScore.student_id)
+        .outerjoin(DepartmentAlias, DepartmentAlias.id == StudentCourseScore.department_id)
+        .outerjoin(TeacherAlias, TeacherAlias.teacher_id == CourseAlias.teacher_id)
         .filter(
             StudentCourseScore.student_id == student_id,
             StudentCourseScore.course_id.in_(course_ids),
         )
-        .order_by(asc(Course.name))
+        .order_by(asc(CourseAlias.name))
         .all()
     )
     return student_courses

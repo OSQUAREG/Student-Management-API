@@ -56,7 +56,7 @@ def create_test_admin():
 
 def create_test_user():
     test_user = User(
-        type="student",
+        type="user",
         title="MR",
         first_name="Student",
         last_name="Test",

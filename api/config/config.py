@@ -28,17 +28,17 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
-    # comment this part for development run
-    uri = config("DATABASE_URL")
-    if uri.startswith("postgres://"):
-        uri = uri.replace("postgres://", "postgresql://", 1)
+    # # comment this part for development run or testing
+    # uri = config("DATABASE_URL")
+    # if uri.startswith("postgres://"):
+    #     uri = uri.replace("postgres://", "postgresql://", 1)
 
-    SQLALCHEMY_DATABASE_URI = uri
-    DEBUG = config("DEBUG", False, cast=bool)
-    SQLALCHEMY_ECHO = False
+    # SQLALCHEMY_DATABASE_URI = uri
+    # DEBUG = config("DEBUG", False, cast=bool)
+    # SQLALCHEMY_ECHO = False
 
-    # # uncomment this part for development run
-    # pass 
+    # # uncomment this part for development run or testing
+    pass 
 
 
 config_dict = dict(

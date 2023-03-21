@@ -8,12 +8,15 @@ from ..models import StudentCourseScore, StudentRecord, GradeScale
 def get_score_grade(student_id, course_id, score):
     grade_point = (
         db.session.query(GradeScale.grade, GradeScale.point)
-        .filter(GradeScale.min <= score, GradeScale.max >= score)
+        .join(StudentCourseScore, StudentCourseScore.score >= GradeScale.min)
         .filter(
             StudentCourseScore.student_id == student_id,
             StudentCourseScore.course_id == course_id,
+            GradeScale.min <= score, 
+            GradeScale.max >= score,
         )
-    ).first()
+        .first()
+    )
     return grade_point.grade, grade_point.point
 
 

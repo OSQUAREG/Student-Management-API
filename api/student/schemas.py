@@ -60,7 +60,7 @@ student_course_model = student_namespace.model(
         "department_name": fields.String(description="Department Name"),
         "registered_on": fields.DateTime(description="Date of Course Registration"),
         "registered_by": fields.String(description="Username of Registrar"),      
-        "teacher": fields.String(description="Teacher Full Name"),
+        "teacher_name": fields.String(description="Teacher Full Name"),
     }
 )
 

@@ -78,7 +78,8 @@ class UserRegister(Resource):
                     new_teacher.generate_staff_code(new_teacher.teacher_id)
 
                     return new_teacher, HTTPStatus.CREATED                
-                abort(HTTPStatus.CONFLICT, message="Email already exist")                
+                abort(HTTPStatus.CONFLICT, message="Email already exist")  
+
             abort(HTTPStatus.BAD_REQUEST, message="Select User Type: TEACHER or STUDENT")        
         abort(HTTPStatus.UNAUTHORIZED, message="Admin Only")
 

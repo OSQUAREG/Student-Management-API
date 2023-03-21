@@ -108,3 +108,28 @@ class Teacher(User):
         year_str = year_str[-3:]
         self.staff_code = f"TCH/{year_str}/{teacher_id:04d}"
         self.update_db()
+
+
+class Admin(User):
+    __tablename__ = "admins"
+
+    admin_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    admin_code = db.Column(db.String(12), unique=True)
+
+    __mapper_args__ = {
+        "polymorphic_identity": "admin",
+    }
+
+    def __repr__(self):
+        return f"<Admin Code.: {self.admin_code}>"
+
+    @classmethod
+    def get_by_admin_id(cls, admin_id):
+        return cls.query.filter(cls.admin_id==admin_id).first()
+
+    def generate_admin_code(self, admin_id):
+        year_str = str(datetime.utcnow().year)
+        year_str = year_str[-3:]
+        self.staff_code = f"ADM/{year_str}/{admin_id:04d}"
+        self.update_db()

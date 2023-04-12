@@ -126,11 +126,10 @@ pip install -r requirements.txt
 
 ```
 flask shell
-db.create_all()
 create_defaults()
 ```
 
-    Or simply go to your terminal with below commands:
+    Or simply go to your terminal and use below commands:
 
 ```
 flask db upgrade 8f7a4337fae1
@@ -139,7 +138,7 @@ flask db upgrade 842af2c54d75
 
 8. Then run `flask run` to start the server, which give you the localhost address: http://127.0.0.1:5000
 9. Copy and paste this in your browser (client-side) and launch it to open the API Swagger interface.
-10. You can then log in with the credentials: `email=admin@sm.com and password=<the DEFAULT_ADMIN_PASSWORD you set>`.
+10. You can then log in with the credentials: `email=admin@smapi.com and password=<the DEFAULT_ADMIN_PASSWORD you set>`.
 
     *Note: for real Production use, this default password should be changed after first login.*
 11. Then go ahead to try out the different routes as detailed in the next section: **How to run the deloyed API online**, from Step 3.

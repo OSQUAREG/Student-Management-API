@@ -2,6 +2,7 @@ from ..utils import db
 from ..utils.db_func import DB_Func
 from datetime import datetime
 from enum import Enum
+from flask_login import UserMixin
 
 class Gender(Enum):
     MALE = "male"
@@ -51,9 +52,18 @@ class User(db.Model, DB_Func):
     def get_by_id(cls, id):
         return cls.query.get_or_404(id)
 
-    def generate_username(self, id, first_name, last_name) -> None:
-        self.username  = f"{first_name.lower()}.{last_name.lower()}{id}"
-        self.update_db()
+    @classmethod
+    def get_by_department_id(cls, department_id):
+        return cls.query.filter_by(department_id=department_id).all()
+    
+    def generate_username(self) -> None:
+        self.username = f"{self.first_name.lower()}.{self.last_name.lower()}{self.id}"
+
+    @classmethod
+    def check_email_exist(cls, email) -> bool:
+        """Checks if email already exist in the users table"""
+        email_exist = cls.query.filter_by(email=email).first()
+        return True if email_exist else False
 
 
 class Student(User):
@@ -72,15 +82,17 @@ class Student(User):
     def __repr__(self):
         return f"<Student Matric No.: {self.matric_no}>"
 
-    @classmethod
-    def get_by_student_id(cls, student_id):
-        return cls.query.filter(cls.student_id==student_id).first()
-
-    def generate_matric_no(self, student_id):
+    def generate_matric_no(self):
         year_str = str(datetime.utcnow().year)
         year_str = year_str[-3:]
-        self.matric_no = f"STU/{year_str}/{student_id:04d}"
-        self.update_db()
+        self.matric_no = f"STU-{year_str}-{self.student_id:04d}"
+
+    @classmethod
+    def get_by_student_id_or_matric(cls, student_id_or_matric):
+        student_w_id = cls.query.filter(cls.student_id==student_id_or_matric).first()
+        student_w_matric = cls.query.filter(cls.matric_no==student_id_or_matric).first()
+        student = student_w_id if student_w_id else student_w_matric
+        return student
 
 
 class Teacher(User):
@@ -99,23 +111,26 @@ class Teacher(User):
     def __repr__(self):
         return f"<Staff Code.: {self.staff_code}>"
 
-    @classmethod
-    def get_by_teacher_id(cls, teacher_id):
-        return cls.query.filter(cls.teacher_id==teacher_id).first()
-
-    def generate_staff_code(self, teacher_id):
+    def generate_staff_code(self):
         year_str = str(datetime.utcnow().year)
         year_str = year_str[-3:]
-        self.staff_code = f"TCH/{year_str}/{teacher_id:04d}"
-        self.update_db()
+        self.staff_code = f"TCH-{year_str}-{self.teacher_id:04d}"
+        # self.update_db()
+
+    @classmethod
+    def get_by_teacher_id_or_code(cls, teacher_id_or_code):
+        teacher_w_id = cls.query.filter(cls.teacher_id==teacher_id_or_code).first()
+        teacher_w_code = cls.query.filter(cls.staff_code==teacher_id_or_code).first()
+        teacher = teacher_w_id if teacher_w_id else teacher_w_code
+        return teacher
 
 
-class Admin(User):
+class Admins(User, UserMixin): # using UserMixin in Flask-Login with Flask-Admin
     __tablename__ = "admins"
 
     admin_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    admin_code = db.Column(db.String(12), unique=True)
+    admin_code = db.Column(db.String)
 
     __mapper_args__ = {
         "polymorphic_identity": "admin",
@@ -124,12 +139,12 @@ class Admin(User):
     def __repr__(self):
         return f"<Admin Code.: {self.admin_code}>"
 
-    @classmethod
-    def get_by_admin_id(cls, admin_id):
-        return cls.query.filter(cls.admin_id==admin_id).first()
+    def generate_admin_code(self):
+        self.admin_code = f"ADM-{self.first_name.lower()}.{self.last_name.lower()}{self.admin_id}"
 
-    def generate_admin_code(self, admin_id):
-        year_str = str(datetime.utcnow().year)
-        year_str = year_str[-3:]
-        self.staff_code = f"ADM/{year_str}/{admin_id:04d}"
-        self.update_db()
+    @classmethod
+    def get_by_admin_id_or_code(cls, admin_id_or_code):
+        admin_w_id = cls.query.filter(cls.admin_id==admin_id_or_code).first()
+        admin_w_code = cls.query.filter(cls.admin_code==admin_id_or_code).first()
+        admin = admin_w_id if admin_w_id else admin_w_code
+        return admin

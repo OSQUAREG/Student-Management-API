@@ -1,4 +1,4 @@
-from .models import User, Department, GradeScale
+from .models import User, Department, GradeScale, Admins
 from .utils import db
 
 """
@@ -7,6 +7,7 @@ export FLASK_APP=runserver.py
 flask shell
 create_defaults()
 """
+
 def create_defaults():
 
     from decouple import config
@@ -15,45 +16,53 @@ def create_defaults():
 
     db.drop_all()
     db.create_all()
-        
+
+    # create admin department
     admin_department = Department(
         name="Admins",
-        code="ADMS",
+        code="ADMIN",
         created_by="super.admin",
         created_on=datetime.utcnow(),  
     )
     admin_department.save_to_db()
-    
-    super_admin = User(
+
+    # create super admin
+    super_admin_user = Admins(
         first_name="Super",
         last_name="Admin",
         gender="MALE",
-        email="superadmin@sm.com",
+        email="osquareg@gmail.com",
         username="super.admin",
         password_hash=generate_password_hash(config("DEFAULT_SUPERADMIN_PASSWORD")),
-        type="user",
+        type="admin",
         department_id=1,
         created_on=datetime.utcnow(),
+        is_active=True,
         is_staff=False,
         is_admin=True,
+        admin_code="super.admin"
     )
-    super_admin.save_to_db()
+    super_admin_user.save_to_db()
 
-    admin = User(
+    # create admin
+    admin_user = Admins(
         first_name="Admin",
         last_name="Admin",
         gender="MALE",
-        email="admin@sm.com",
+        email="osquaregtech@gmail.com",
         username="admin",
         password_hash=generate_password_hash(config("DEFAULT_ADMIN_PASSWORD")),
-        type="user",
+        type="admin",
         department_id=1,
         created_on=datetime.utcnow(),
+        is_active=True,
         is_staff=False,
         is_admin=True,
+        admin_code="admin"
     )
-    admin.save_to_db()
+    admin_user.save_to_db()
 
+    # create grades scale in gradescales table
     grade = ["A", "B", "C", "D", "E", "F"]
     point = [4, 3, 2, 1, 0, 0]
     min = [70, 60, 50, 45, 40, 0]

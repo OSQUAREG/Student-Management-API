@@ -4,7 +4,7 @@ from ..course import course_namespace
 
 # CREATE COURSE SCHEMA MODEL
 new_course_model = course_namespace.model(
-    name="New Course Details",
+    name="New Course Model",
     model={
         "code": fields.String(required=True, description="Course Code"),
         "name": fields.String(required=True, description="Course Name"),
@@ -17,19 +17,28 @@ new_course_model = course_namespace.model(
 
 # COURSE SCHEMA MODEL
 course_model = course_namespace.model(
-    name="Course Details",
+    name="Course Model",
     model={
         "id": fields.Integer(description="Course ID"),
         "course_code": fields.String(description="Course Code"),
         "course_name": fields.String(description="Course Name"),
         "course_credit": fields.String(description="Course Credit"),
-        "department_name": fields.String(description="Department ID"),
-        "gender": fields.String(description="Gender"),
         "created_on": fields.DateTime(description="Created Date"),
         "created_by": fields.String(description="Creator's Username"),
+        "department_id": fields.String(description="Deparment Id"),
+        "department_name": fields.String(description="Department Name"),
         "teacher_id": fields.Integer(description="Teaacher ID"),
-        "teacher": fields.String(description="Teacher Full Name"),
+        "teacher_name": fields.String(description="Teacher Full Name"),
+        "gender": fields.String(description="Gender"),
     },
+)
+
+course_response_model = course_namespace.model(
+    name="Course Response Model",
+    model={
+        "message": fields.String(description="Response Message"),
+        "data": fields.Nested(course_model, description="Response Data")
+    }
 )
 
 
@@ -44,15 +53,24 @@ course_students_model = course_namespace.model(
         "course_id": fields.Integer(description="Course ID"),
         "course_code": fields.String(description="Course Code"),
         "course_name": fields.String(description="Course Name"),
+        "teacher_name": fields.String(description="Teacher Full Name"),
         "registered_on": fields.DateTime(description="Created Date"),
         "registered_by": fields.String(description="Creator's Username"),
     },
 )
 
+course_students_response_model = course_namespace.model(
+    name="Course Students Response Model",
+    model={
+        "message": fields.String(description="Response Message"),
+        "data": fields.Nested(course_students_model, description="Response Data")
+    }
+)
+
 
 # COURSE STUDENTS GRADES SCHEMA MODEL
 course_students_grades_model = course_namespace.model(
-    name="Student Specific Course",
+    name="Course Students Grades Model",
     model={
         "student_id": fields.Integer(description="student ID"),
         "matric_no": fields.String(description="Student"),
@@ -67,29 +85,50 @@ course_students_grades_model = course_namespace.model(
     }
 )
 
+course_students_grades_response_model = course_namespace.model(
+    name="Course Students Grades Response Model",
+    model={
+        "message": fields.String(description="Response Message"),
+        "data": fields.Nested(course_students_grades_model, description="Response Data")
+    }
+)
+
+
+# UPDATE COURSE SCHEMA
+update_course_model = course_namespace.model(
+    name="Update Course Model",
+    model={
+        "name": fields.String(description="Course Name"),
+        "code": fields.String(description="Course Code"),
+        "credit": fields.String(description="Course Credit"),
+        "department": fields.String(description="Department Id or Code"),
+        "teacher": fields.String(description="Teacher Id or Staff Code")
+    },
+)
+
 
 update_multiple_course_students_scores_model = course_namespace.model(
     name="Update Multiple Students Grades for a Course",
     model={
-        "student1_id": fields.Integer( description="Student 1 ID"),
+        "student1": fields.Integer( description="Student 1 Id or Code"),
         "score1": fields.Integer(description="Student 1 Score"),
-        "student2_id": fields.Integer(description="Student 2 ID"),
+        "student2": fields.Integer(description="Student 2 Id or Code"),
         "score2": fields.Integer(description="Student 2 Score"),
-        "student3_id": fields.Integer(description="Student 3 ID"),
+        "student3": fields.Integer(description="Student 3 Id or Code"),
         "score3": fields.Integer(description="Student 3 Score"),
-        "student4_id": fields.Integer(description="Student 4 ID"),
+        "student4": fields.Integer(description="Student 4 Id or Code"),
         "score4": fields.Integer(description="Student 4 Score"),
-        "student5_id": fields.Integer(description="Student 5 ID"),
+        "student5": fields.Integer(description="Student 5 Id or Code"),
         "score5": fields.Integer(description="Student 5 Score"),
-        "student6_id": fields.Integer(description="Student 6 ID"),
+        "student6": fields.Integer(description="Student 6 Id or Code"),
         "score6": fields.Integer(description="Student 6 Score"),
-        "student7_id": fields.Integer(description="Student 7 ID"),
+        "student7": fields.Integer(description="Student 7 Id or Code"),
         "score7": fields.Integer(description="Student 7 Score"),
-        "student8_id": fields.Integer(description="Student 8 ID"),
+        "student8": fields.Integer(description="Student 8 Id or Code"),
         "score8": fields.Integer(description="Student 8 Score"),
-        "student9_id": fields.Integer(description="Student 9 ID"),
+        "student9": fields.Integer(description="Student 9 Id or Code"),
         "score9": fields.Integer(description="Student 9 Score"),
-        "student10_id": fields.Integer(description="Student 10 ID"),
+        "student10": fields.Integer(description="Student 10 Id or Code"),
         "score10": fields.Integer(description="Student 10 Score"),
     },
 )

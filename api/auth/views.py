@@ -25,61 +25,60 @@ class UserRegister(Resource):
             # if new user is a student
             if data["user_type"].upper() == "STUDENT":
                 # check if email exist
-                email_exist = Student.query.filter_by(email=data["email"]).first()
-                if email_exist is None:
-                    new_student = Student(
-                        title=data["title"],
-                        first_name=data["first_name"],
-                        last_name=data["last_name"],
-                        gender=data["gender"],
-                        email=data["email"],
-                        password_hash=generate_password_hash(config("DEFAULT_STUDENT_PASSWORD")),
-                        department_id=data["department_id"],
-                        created_by=current_user.username,
-                        is_staff=False,
-                    )
-                    new_student.save_to_db()
-                    # generate username
-                    new_student.generate_username(new_student.user_id, new_student.first_name, new_student.last_name)
-                    # generate matric number
-                    new_student.generate_matric_no(new_student.student_id)
+                if User.check_email_exist(data["email"]):
+                    abort(HTTPStatus.CONFLICT, message="Email already exist.")
+                # Instantiate a Student class
+                new_student = Student(
+                    title=data["title"],
+                    first_name=data["first_name"],
+                    last_name=data["last_name"],
+                    gender=data["gender"],
+                    email=data["email"],
+                    password_hash=generate_password_hash(config("DEFAULT_STUDENT_PASSWORD")),
+                    department_id=data["department_id"],
+                    created_by=current_user.username,
+                    is_staff=False,
+                )
+                new_student.save_to_db()
+                new_student.generate_username()
+                new_student.generate_matric_no()
+                new_student.modified_by = current_user.username
+                new_student.update_db()
 
-                    # instantiate new Student Records class
-                    new_stu_record = StudentRecord(
-                        student_id=new_student.student_id,
-                        matric_no=new_student.matric_no,
-                        department_id=new_student.department_id,
-                        created_by=current_user.username
-                    )
-                    new_stu_record.save_to_db()
-                    return new_student, HTTPStatus.CREATED                
-                abort(HTTPStatus.CONFLICT, message="Email already exist")
+                # instantiate new Student Records class
+                new_stu_record = StudentRecord(
+                    student_id=new_student.student_id,
+                    matric_no=new_student.matric_no,
+                    department_id=new_student.department_id,
+                    created_by=current_user.username
+                )
+                new_stu_record.save_to_db()
+                return new_student, HTTPStatus.CREATED
 
             # if new user is a teacher
             elif data["user_type"].upper() == "TEACHER":
                 # check if email exist
-                email_exist = Teacher.query.filter_by(email=data["email"]).first()
-                if email_exist is None:
-                    new_teacher = Teacher(
-                        title=data["title"],
-                        first_name=data["first_name"],
-                        last_name=data["last_name"],
-                        gender=data["gender"],
-                        email=data["email"],
-                        password_hash=generate_password_hash(config("DEFAULT_TEACHER_PASSWORD")),
-                        department_id=data["department_id"],
-                        created_by=current_user.username,
-                        is_staff=True,
-                    )
-                    new_teacher.save_to_db()
-                    # generate username
-                    new_teacher.generate_username(new_teacher.user_id, new_teacher.first_name, new_teacher.last_name)
-                    # generate matric number
-                    new_teacher.generate_staff_code(new_teacher.teacher_id)
-
-                    return new_teacher, HTTPStatus.CREATED                
-                abort(HTTPStatus.CONFLICT, message="Email already exist")  
-
+                if User.check_email_exist(data["email"]):
+                    abort(HTTPStatus.CONFLICT, message="Email already exist.")
+                # Instantiate a Student class
+                new_teacher = Teacher(
+                    title=data["title"],
+                    first_name=data["first_name"],
+                    last_name=data["last_name"],
+                    gender=data["gender"],
+                    email=data["email"],
+                    password_hash=generate_password_hash(config("DEFAULT_TEACHER_PASSWORD")),
+                    department_id=data["department_id"],
+                    created_by=current_user.username,
+                    is_staff=True,
+                )
+                new_teacher.save_to_db()
+                new_teacher.generate_username()
+                new_teacher.generate_staff_code()
+                new_teacher.modified_by = current_user.username
+                new_teacher.update_db()
+                return new_teacher, HTTPStatus.CREATED
+            
             abort(HTTPStatus.BAD_REQUEST, message="Select User Type: TEACHER or STUDENT")        
         abort(HTTPStatus.UNAUTHORIZED, message="Admin Only")
 
@@ -99,25 +98,26 @@ class UserLogin(Resource):
         password = data["password"]
 
         user = User.query.filter_by(email=email).first()
-        if user and check_password_hash(user.password_hash, password):
-            access_token = create_access_token(identity=user.username)
-            refresh_token = create_refresh_token(identity=user.username)
-            # check if login password is still default password
-            if check_password_hash(user.password_hash, config("DEFAULT_STUDENT_PASSWORD")) or check_password_hash(user.password_hash, config("DEFAULT_TEACHER_PASSWORD")) or check_password_hash(user.password_hash, config("DEFAULT_ADMIN_PASSWORD")):
+        if user:
+            if check_password_hash(user.password_hash, password):
+                access_token = create_access_token(identity=user.username)
+                refresh_token = create_refresh_token(identity=user.username)
+                # check if login password is still default password
+                if check_password_hash(user.password_hash, config("DEFAULT_STUDENT_PASSWORD")) or check_password_hash(user.password_hash, config("DEFAULT_TEACHER_PASSWORD")) or check_password_hash(user.password_hash, config("DEFAULT_ADMIN_PASSWORD")):
+                    response = {
+                        "message": "Login Successful! Please Change the Default Password!",
+                        "access_token": access_token,
+                        "refresh_token": refresh_token,
+                    }
+                    return response, HTTPStatus.CREATED
+
                 response = {
-                    "message": "Login Successful! Please Change the Default Password!",
-                    "access_token": access_token,
-                    "refresh_token": refresh_token,
-                }
-                return response, HTTPStatus.CREATED
+                        "message": "Login Successful!",
+                        "access_token": access_token,
+                        "refresh_token": refresh_token,
+                    }
 
-            response = {
-                    "message": "Login Successful!",
-                    "access_token": access_token,
-                    "refresh_token": refresh_token,
-                }
-
-            return response, HTTPStatus.CREATED    
+                return response, HTTPStatus.CREATED    
         abort(HTTPStatus.UNAUTHORIZED, message="Invalid Credentials")
 
 
@@ -178,7 +178,7 @@ class UserPasswordChange(Resource):
         if new_password == confirm_password:
             if user and check_password_hash(user.password_hash, old_password):
                 user.password_hash = generate_password_hash(new_password)
-
+                user.modified_by = current_user.username
                 user.update_db()
 
                 # logs out current user

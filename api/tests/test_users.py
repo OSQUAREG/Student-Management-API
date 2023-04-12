@@ -9,7 +9,7 @@ load_dotenv()
 
 class UserTestCase(UnitTestCase):
     # testing the sign-up route
-    def test_user_registration(self):
+    def testUserRegister(self):
         test_admin=create_test_admin()
 
         # Student Test Data & Response
@@ -60,18 +60,18 @@ class UserTestCase(UnitTestCase):
         # Asserting the test data saved in students table
         student = Student.query.filter_by(student_id=1).first()
         assert student.username == "student.test2"
-        assert student.matric_no == f"STU/{year_str}/0001"
+        assert student.matric_no == f"STU-{year_str}-0001"
         assert student.email == "student@test.com"
 
         # Asserting the test data saved in teachers table DB
         teacher = Teacher.query.filter_by(teacher_id=1).first()
         assert teacher.username == "teacher.test3"
-        assert teacher.staff_code == f"TCH/{year_str}/0001"
+        assert teacher.staff_code == f"TCH-{year_str}-0001"
         assert teacher.email == "teacher@test.com"
 
         
     # testing the login route
-    def test_user_login(self):
+    def testUserLogin(self):
         test_user = create_test_user()
         
         data = {
@@ -85,7 +85,7 @@ class UserTestCase(UnitTestCase):
 
 
     # testing the user password change
-    def test_user_password_change(self):
+    def testUserChangePassword(self):
         test_user = create_test_user()        
         
         data = {

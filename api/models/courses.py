@@ -19,11 +19,20 @@ class Department(db.Model, DB_Func):
     users = db.relationship("User", backref="user_department", lazy=True)
 
     def __repr__(self):
-        return f"<Department Name: {self.name}>"
+        return f"<{self.name}>"
 
     @classmethod
-    def get_by_id(cls, id):
-        return cls.query.get_or_404(id)
+    def get_by_department_id_or_code(cls, department_id_or_code):
+        department_w_id = cls.query.filter(cls.id==department_id_or_code).first()
+        department_w_code = cls.query.filter(cls.code==department_id_or_code).first()
+        department = department_w_id if department_w_id else department_w_code
+        return department
+
+    @classmethod
+    def check_department_code_exist(code) -> bool:
+        """"Checks if code already exist in departments table"""
+        code_exist = Department.query.filter_by(code=code).first()
+        return True if code_exist else False
 
 
 class Course(db.Model, DB_Func):
@@ -48,5 +57,26 @@ class Course(db.Model, DB_Func):
         return f"<Course Name: {self.name}>"
 
     @classmethod
-    def get_by_id(cls, id):
-        return cls.query.get_or_404(id)
+    def get_by_course_id_or_code(cls, course_id_or_code):
+        course_w_id = cls.query.filter(cls.id==course_id_or_code).first()
+        course_w_code = cls.query.filter(cls.code==course_id_or_code).first()
+        course = course_w_id if course_w_id else course_w_code
+        return course
+
+    @classmethod
+    def get_by_department_id(cls, department_id):
+        return cls.query.filter_by(department_id=department_id).all()
+
+    @classmethod
+    def get_one_by_teacher_id(cls, teacher_id):
+        return cls.query.filter_by(teacher_id=teacher_id).first()
+
+    @classmethod
+    def get_all_by_teacher_id(cls, teacher_id):
+        return cls.query.filter_by(teacher_id=teacher_id).all()
+
+    @classmethod
+    def check_course_code_exist(code) -> bool:
+        """Checks if code already exist in courses table"""
+        code_exist = Course.query.filter_by(code=code).first()
+        return True if code_exist else False
